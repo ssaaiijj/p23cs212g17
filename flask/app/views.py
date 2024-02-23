@@ -9,13 +9,11 @@ from flask_login import login_user, login_required, logout_user, current_user
 
 from app import app
 from app import db
-from app import login_manager
-from app import oauth
 
 
-@app.route('/')
+@app.route('/', methods=('GET', 'POST'))
 def home():
-    return "Flask says 'Hello world!'"
+    return app.send_static_file("login.html")
 
 
 @app.route('/crash')
