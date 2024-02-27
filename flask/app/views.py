@@ -16,6 +16,16 @@ def home():
     return app.send_static_file("login.html")
 
 
+@app.route('/signup', methods=('GET', 'POST'))
+def sign_up():
+    return app.send_static_file("sign_up.html")
+
+
+@app.route('/play')
+def play():
+    return app.send_static_file("play.html")
+
+
 @app.route('/crash')
 def crash():
     return 1/0
