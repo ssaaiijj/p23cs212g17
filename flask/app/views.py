@@ -121,3 +121,21 @@ def db_connection():
         return '<h1>db works.</h1>'
     except Exception as e:
         return '<h1>db is broken.</h1>' + str(e)
+    
+@app.route('/quizinfo')
+def quizinfo():
+    return app.send_static_file("quizinfo.html")
+
+@app.route('/leaderboard')
+def leaderboard():
+    return app.send_static_file("leaderboard.html")
+
+
+@app.route('/result')
+def result():
+    return app.send_static_file("result.html")
+
+
+@app.route('/playmode')
+def playmode():
+    return app.send_static_file("playmode.html")
