@@ -60,7 +60,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav nav-underline me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Play</a>
+                        <a class="nav-link active" aria-current="page">Play</a>
                       </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Create</a>
@@ -69,15 +69,15 @@
             </div>
         </div>
         <div class="dropdown pe-lg-4 dropdown-toggle ps-3" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-            Username<br>
-            email@mail.com
+            {{ current_user.name }}<br>
+            {{ current_user.email }}
             <ul class="dropdown-menu profile ps-3">
                 <li><a class="dropdown-item" href="#">Edit Profile</a></li>
-                <li><a class="dropdown-item" href="#">Log Out</a></li>
+                <li><a class="dropdown-item" id="logout">Log Out</a></li>
             </ul>
         </div>
         <div class="pe-4">
-            <img src="static/img/google_logo.png" width="30">
+            <img src="{{ current_user.avatar_url }}" width="30">
         </div>
     </nav>
 
@@ -175,6 +175,12 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+
+    <script>
+        $("#logout").click(function () {
+            window.location.href = "/logout";
+        }); 
+    </script>
 
   </body>
 </html>
