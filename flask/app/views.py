@@ -20,11 +20,86 @@ from app import oauth
 
 @app.route('/', methods=('GET', 'POST'))
 def home():
+
+    if request.method == 'POST':
+        # login code goes here
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        user = AuthUser.query.filter_by(email=email).first()
+ 
+        # check if the user actually exists
+        # take the user-supplied password, hash it, and compare it to the
+        # hashed password in the database
+        if not user or not check_password_hash(user.password, password):
+            flash('Please check your login details and try again.')
+            # if the user doesn't exist or password is wrong, reload the page
+            return redirect(url_for('home'))
+
+        # if the above check passes, then we know the user has the right
+        # credentials
+        login_user(user)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('play')
+        return redirect(next_page)
+    
     return app.send_static_file("login.html")
 
 
 @app.route('/signup', methods=('GET', 'POST'))
 def sign_up():
+
+    if request.method == 'POST':
+        result = request.form.to_dict()
+        app.logger.debug(str(result))
+ 
+        validated = True
+        validated_dict = {}
+        valid_keys = ['email', 'name', 'password']
+
+        # validate the input
+        for key in result:
+            app.logger.debug(str(key)+": " + str(result[key]))
+            # screen of unrelated inputs
+            if key not in valid_keys:
+                continue
+
+            value = result[key].strip()
+            if not value or value == 'undefined':
+                validated = False
+                break
+            validated_dict[key] = value
+            # code to validate and add user to database goes here
+        app.logger.debug("validation done")
+        if validated:
+            app.logger.debug('validated dict: ' + str(validated_dict))
+            email = validated_dict['email']
+            name = validated_dict['name']
+            password = validated_dict['password']
+            # if this returns a user, then the email already exists in database
+            user = AuthUser.query.filter_by(email=email).first()
+
+            if user:
+                # if a user is found, we want to redirect back to signup
+                # page so user can try again
+                flash('Email address already exists')
+                return redirect(url_for('signup'))
+
+            # create a new user with the form data. Hash the password so
+            # the plaintext version isn't saved.
+            app.logger.debug("preparing to add")
+            avatar_url = gen_avatar_url(email, name)
+            new_user = AuthUser(email=email, name=name,
+                                password=generate_password_hash(
+                                    password, method='sha256'),
+                                avatar_url=avatar_url)
+            # add the new user to the database
+            db.session.add(new_user)
+            db.session.commit()
+
+        return redirect(url_for('home'))
+
     return app.send_static_file("sign_up.html")
 
 
@@ -122,9 +197,11 @@ def db_connection():
     except Exception as e:
         return '<h1>db is broken.</h1>' + str(e)
     
+    
 @app.route('/quizinfo')
 def quizinfo():
     return app.send_static_file("quizinfo.html")
+
 
 @app.route('/leaderboard')
 def leaderboard():
