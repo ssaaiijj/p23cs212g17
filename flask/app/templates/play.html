@@ -1,0 +1,120 @@
+{% extends 'navbar.html' %}
+{% block content %}
+    <div class="container-fluid p-4">
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#search">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="container-fluid p-4" id="quiz">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-8">
+                <div class="accordion" id="my-quiz-all">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#my-quiz" aria-expanded="true" aria-controls="my-quiz">
+                                My Quiz(s)
+                            </button>
+                        </h2>
+                        <div id="my-quiz" class="accordion-collapse collapse show" data-bs-parent="#my-quiz-all">
+                            <div class="accordion-body">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action" aria-current="true">The current link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A second link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion pt-3" id="other-quiz-all">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#other-quiz" aria-expanded="true" aria-controls="other-quiz">
+                                Other Quiz(s)
+                            </button>
+                        </h2>
+                        <div id="other-quiz" class="accordion-collapse collapse show" data-bs-parent="#other-quiz-all">
+                            <div class="accordion-body">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action" aria-current="true">The current link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A second link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" id="search">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Search</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <p>Simple Search</p>
+                        <hr>
+                        <form method="post" id="simple-search">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control simple-search" id="name-tag" placeholder="">
+                                <label for="name-tag">Name/Tag</label>
+                            </div>
+                            <input class="btn btn-secondary" type="submit" value="search">
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <hr>
+                <div class="modal-body">
+                    <div>
+                        <p>Advance Search</p>
+                        <hr>
+                        <form method="post" id="advance-search">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control advance-search" name="name" id="name" placeholder="">
+                                <label for="name">Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control advance-search" name="tag" id="tag" placeholder="">
+                                <label for="tag">Tag</label>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                    Time Limit
+                                </label>
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            </div>
+                            <br>
+                            <p>Difficulty</p>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="difficulty" id="difficulty1" value="hard">
+                                <label class="form-check-label" for="difficulty1">Hard</label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="difficulty" id="difficulty2" value="normal">
+                                <label class="form-check-label" for="difficulty2">Normal</label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="difficulty" id="difficulty3" value="easy">
+                                <label class="form-check-label" for="difficulty3">Easy</label>
+                              </div>
+                            <br><br>
+                            <input class="btn btn-secondary" type="submit" value="search">
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
