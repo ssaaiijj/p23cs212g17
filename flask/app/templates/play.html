@@ -1,86 +1,5 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Play</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
-    <style>
-        html,
-        body {
-            font-family: "IBM Plex Sans Thai Looped", sans-serif;
-            font-weight: 400;
-            font-style: normal;
-            background-color: #F5F5C3;
-            height: 100%;
-        }
-
-        .navbar {
-            background-color: #b08c64;
-        }
-
-        .nav-link, .dropdown {
-            color: #e3e3e3;
-        }
-
-        .dropdown-menu.profile {
-            background-color: #e6d69c;
-            color: #e3e3e3;
-        }
-
-        .dropdown-item {
-            color: #1b1b1b;
-        }
-
-        .dropdown-item:active {
-            background-color: #FFFFB3;
-            color: #1b1b1b;
-        }
-
-    </style>
-
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <div class="navbar-brand">
-                <img src="static/img/quiz_logo.png" width="90">
-            </div>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav nav-underline me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page">Play</a>
-                      </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Create</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="dropdown pe-lg-4 dropdown-toggle ps-3" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-            {{ current_user.name }}<br>
-            {{ current_user.email }}
-            <ul class="dropdown-menu profile ps-3">
-                <li><a class="dropdown-item" href="#">Edit Profile</a></li>
-                <li><a class="dropdown-item" id="logout">Log Out</a></li>
-            </ul>
-        </div>
-        <div class="pe-4">
-            <img src="{{ current_user.avatar_url }}" width="30">
-        </div>
-    </nav>
-
+{% extends 'navbar.html' %}
+{% block content %}
     <div class="container-fluid p-4">
         <div class="d-flex justify-content-end">
             <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#search">
@@ -89,20 +8,46 @@
         </div>
     </div>
 
-    <div class="container-fluid p-4">
-        <div class="row">
-            <div class="col-12">
-                <p data-bs-toggle="collapse" data-bs-target="#my-quizs" aria-expanded="true" aria-controls="my-quizs">My Quizs <i class="bi bi-caret-down-fill"></i></p>
-                <hr class="w-100 border border-dark borde-2 opacity-75 line-spilt">
-                <div class="collapse show" id="my-quizs">
-                    test
+    <div class="container-fluid p-4" id="quiz">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-8">
+                <div class="accordion" id="my-quiz-all">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#my-quiz" aria-expanded="true" aria-controls="my-quiz">
+                                My Quiz(s)
+                            </button>
+                        </h2>
+                        <div id="my-quiz" class="accordion-collapse collapse show" data-bs-parent="#my-quiz-all">
+                            <div class="accordion-body">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action" aria-current="true">The current link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A second link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-12 pt-3">
-                <p data-bs-toggle="collapse" data-bs-target="#other-quizs" aria-expanded="true" aria-controls="other-quizs">Other Quizs <i class="bi bi-caret-down-fill"></i></p>
-                <hr class="w-100 border border-dark borde-2 opacity-75 line-spilt">
-                <div class="collapse show" id="other-quizs">
-                    test
+                <div class="accordion pt-3" id="other-quiz-all">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#other-quiz" aria-expanded="true" aria-controls="other-quiz">
+                                Other Quiz(s)
+                            </button>
+                        </h2>
+                        <div id="other-quiz" class="accordion-collapse collapse show" data-bs-parent="#other-quiz-all">
+                            <div class="accordion-body">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action" aria-current="true">The current link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A second link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,15 +117,4 @@
             </div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-
-    <script>
-        $("#logout").click(function () {
-            window.location.href = "/logout";
-        }); 
-    </script>
-
-  </body>
-</html>
+{% endblock %}
