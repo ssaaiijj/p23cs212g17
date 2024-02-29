@@ -179,7 +179,7 @@ def facebook_auth():
     resp = oauth.facebook.get(
         'https://graph.facebook.com/me?fields=id,name,email,picture{url}')
     profile = resp.json()
-    print("Facebook User ", profile)
+    app.logger.debug("Facebook User ", profile)
     user = AuthUser.query.filter_by(email=profile['email']).first()
     if not user:
         name = profile.get('name')
