@@ -31,6 +31,14 @@ def crash():
     return 1/0
 
 
+@app.route('/create')
+def createOverview():
+    return app.send_static_file('CreateQuizOver.html')
+
+@app.route('/createQuestion')
+def createQuestion():
+    return app.send_static_file('CreateQuizQues.html')
+
 @app.route('/db')
 def db_connection():
     try:
