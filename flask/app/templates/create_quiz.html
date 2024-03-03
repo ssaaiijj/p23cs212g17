@@ -1,0 +1,66 @@
+{% extends 'navbar.html' %}
+{% block content %}
+
+<div class="container-fluid p-4">
+    <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-8">
+            <form id="quiz-creator">
+                <div class="card justify-content-center align-items-center" id="q1">
+                    <div class="input-group mb-3">
+                        <label class="form-label">Question 1</label>
+                        <input id="q1-question" type="text">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div id="q1-choices">
+                            <input id="q1-c1" type="text">
+                            <button class="add-button" id="q1-add" onclick="addChoice(1)">Add choices</button>
+                        </div>
+                    </div>
+                    <select id="q1-ans">
+                        <option selected>Open this to select answer</option>
+                        <div id="q1-cs">
+                            
+                        </div>
+                    </select>
+                    <input type="submit">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    let q_choices = [1]
+
+    $(document).ready(function () {
+
+    })
+
+    $(".add-button").on("click", function(event) {
+        event.preventDefault()
+    })
+
+    function addChoice(q_add) {
+        let selector = "q" + q_add + "-choices"
+        let choice = q_choices[q_add - 1] + 1
+        let id_before = "q" + q_add + "-c" + q_choices[q_add - 1]
+        let id_choice = "q" + q_add + "-c" + choice
+        let add_button = "q" + q_add + "-add"
+
+        let html_c = '<input id="' + id_choice + '" type="text">'
+        let html_a = '<button id="'+ add_button + '" onclick="addChoice('+ q_add +')">Add choices</button>'
+
+        quiz_c = $("#q1-choices")
+        $("#" + id_before).after(html_c)
+        q_choices[q_add - 1] = choice
+
+        if (choice === 4) {
+            $("#" + add_button).remove()
+        }
+    }
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Play</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <style>
+        html,
+        body {
+            font-family: "IBM Plex Sans Thai Looped", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            background-color: #F5F5C3;
+            height: 100%;
+        }
+
+        .navbar {
+            background-color: #b08c64;
+        }
+
+        .nav-link, .dropdown {
+            color: #e3e3e3;
+        }
+
+        .dropdown-menu.profile {
+            background-color: #e6d69c;
+            color: #e3e3e3;
+        }
+
+        .dropdown-item {
+            color: #1b1b1b;
+        }
+
+        .dropdown-item:active {
+            background-color: #FFFFB3;
+            color: #1b1b1b;
+        }
+
+    </style>
+
+  </head>
+
+  <body>
+    <div class="container-fluid p-4" id="quiz">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-8">
+                <div class="accordion" id="my-quiz-all">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#my-quiz" aria-expanded="true" aria-controls="my-quiz">
+                                Tags
+                            </button>
+                        </h2>
+                        <div id="my-quiz" class="accordion-collapse collapse show" data-bs-parent="#my-quiz-all">
+                            <div class="accordion-body">
+                                <div class="list-group" id="my-quiz-list">
+                                    {% if tag %}
+                                        have
+                                    {% else %}
+                                        <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion pt-3" id="other-quiz-all">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#other-quiz" aria-expanded="true" aria-controls="other-quiz">
+                                All quizs
+                            </button>
+                        </h2>
+                        <div id="other-quiz" class="accordion-collapse collapse show" data-bs-parent="#other-quiz-all">
+                            <div class="accordion-body">
+                                <div class="list-group" id="other-quiz-list">
+                                    {% if quiz %}
+                                        have
+                                    {% else %}
+                                        <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+
+    <script>
+        $("#logout").click(function () {
+            window.location.href = "/logout";
+        }); 
+    </script>
+
+  </body>
+
+</html>

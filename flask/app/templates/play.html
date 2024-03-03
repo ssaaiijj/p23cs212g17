@@ -20,11 +20,12 @@
                         </h2>
                         <div id="my-quiz" class="accordion-collapse collapse show" data-bs-parent="#my-quiz-all">
                             <div class="accordion-body">
-                                <div class="list-group">
-                                    <a href="#" class="list-group-item list-group-item-action" aria-current="true">The current link item</a>
-                                    <a href="#" class="list-group-item list-group-item-action">A second link item</a>
-                                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
-                                    <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
+                                <div class="list-group" id="my-quiz-list">
+                                    {% if my_quiz %}
+                                        have
+                                    {% else %}
+                                        <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -39,11 +40,12 @@
                         </h2>
                         <div id="other-quiz" class="accordion-collapse collapse show" data-bs-parent="#other-quiz-all">
                             <div class="accordion-body">
-                                <div class="list-group">
-                                    <a href="#" class="list-group-item list-group-item-action" aria-current="true">The current link item</a>
-                                    <a href="#" class="list-group-item list-group-item-action">A second link item</a>
-                                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
-                                    <a href="#" class="list-group-item list-group-item-action">A fourth link item</a>
+                                <div class="list-group" id="other-quiz-list">
+                                    {% if other_quiz %}
+                                        have
+                                    {% else %}
+                                        <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -117,4 +119,14 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block script %}
+
+<script>
+    $(document).ready(function () {
+        $("#play-nav").attr("class", "nav-link active")
+    })
+</script>
+
 {% endblock %}

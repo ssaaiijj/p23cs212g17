@@ -12,20 +12,21 @@ class AuthUser(db.Model, UserMixin):
     name = db.Column(db.String(1000))
     password = db.Column(db.String(100))
     avatar_url = db.Column(db.String(250))
+    is_admin = db.Column(db.Boolean)
     my_quizs = db.relationship('Quiz', backref='auth_users', lazy=True)
 
-    def __init__(self, email, name, password, avatar_url):
+    def __init__(self, email, name, password, avatar_url, is_admin):
         self.email = email
         self.name = name
         self.password = password
         self.avatar_url = avatar_url
+        self.is_admin = is_admin
 
     def update(self, email, name, password, avatar_url):
         self.email = email
         self.name = name
         self.password = password
         self.avatar_url = avatar_url
-
 
 class PrivateQuiz(Quiz, UserMixin, SerializerMixin):
     created_by_id = db.Column(db.Integer, db.ForeignKey('auth_users.id'))
