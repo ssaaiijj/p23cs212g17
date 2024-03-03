@@ -18,7 +18,7 @@ def seed_db():
                             password=generate_password_hash('1234',
                                                             method='sha256'),
                             avatar_url='https://ui-avatars.com/api/?name=\
-สมชาย+ทรงแบด&background=83ee03&color=fff'))
+สมชาย+ทรงแบด&background=83ee03&color=fff', is_admin=True))
     db.session.commit()
 
 if __name__ == "__main__":

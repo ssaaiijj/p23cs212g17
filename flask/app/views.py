@@ -2,7 +2,7 @@ import secrets
 import string
 
 from flask import (jsonify, render_template,
-                   request, url_for, flash, redirect)
+                   request, url_for, flash, redirect, abort)
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.urls import url_parse
@@ -14,7 +14,9 @@ from markupsafe import escape
 from app import app
 from app import db
 from app import login_manager
-from app.models.authuser import AuthUser
+from app.models.authuser import AuthUser, PrivateQuiz
+from app.models.quiz import Tag
+from app.forms import forms
 from app import oauth
 
 
@@ -93,7 +95,7 @@ def sign_up():
             new_user = AuthUser(email=email, name=name,
                                 password=generate_password_hash(
                                     password, method='sha256'),
-                                avatar_url=avatar_url)
+                                avatar_url=avatar_url, is_admin=False)
             # add the new user to the database
             db.session.add(new_user)
             db.session.commit()
@@ -106,7 +108,21 @@ def sign_up():
 @app.route('/play')
 @login_required
 def play():
-    return render_template("play.html")
+    db_my_quiz = PrivateQuiz.query.filter(
+        PrivateQuiz.created_by_id == current_user.id
+    )
+    my_quiz = list(map(lambda x: x.to_dict(), db_my_quiz))
+    db_other_quiz = PrivateQuiz.query.filter(
+        PrivateQuiz.created_by_id != current_user.id
+    )
+    other_quiz = list(map(lambda x: x.to_dict(), db_other_quiz))
+
+    return render_template("play.html", my_quiz=my_quiz, other_quiz=other_quiz)
+
+
+@app.route('/create-quiz')
+def create_quiz():
+    return render_template("create_quiz.html")
 
 
 @app.route('/google/')
@@ -145,7 +161,7 @@ def google_auth():
         new_user = AuthUser(email=email, name=name,
                            password=generate_password_hash(
                                password, method='sha256'),
-                           avatar_url=picture)
+                           avatar_url=picture, is_admin=False)
         db.session.add(new_user)
         db.session.commit()
         user = AuthUser.query.filter_by(email=email).first()
@@ -190,7 +206,7 @@ def facebook_auth():
         new_user = AuthUser(email=profile['email'], name=name,
                            password=generate_password_hash(
                                password, method='sha256'),
-                           avatar_url=picture)
+                           avatar_url=picture, is_admin=False)
         db.session.add(new_user)
         db.session.commit()
         user = AuthUser.query.filter_by(email=profile['email']).first()
@@ -237,9 +253,11 @@ def crash():
 def createOverview():
     return app.send_static_file('CreateQuizOver.html')
 
+
 @app.route('/createQuestion')
 def createQuestion():
     return app.send_static_file('CreateQuizQues.html')
+
 
 @app.route('/db')
 def db_connection():
@@ -269,3 +287,33 @@ def result():
 @app.route('/playmode')
 def playmode():
     return app.send_static_file("playmode.html")
+
+
+@app.route('/test', methods=('GET', 'POST'))
+def test():
+
+    form = forms.Quiz()
+
+    if request.method == 'POST':
+        result = request.form.to_dict()
+        return jsonify(result)
+
+    return render_template("test.html", form=form)
+
+
+
+@app.route('/qwerty')
+def admin():
+    if current_user.is_authenticated:
+        if not current_user.is_admin:
+            abort(404)
+            #pass
+    else:
+        abort(404)
+
+    db_tag = Tag.query.all()
+    db_quiz = PrivateQuiz.query.all()
+    tag = list(map(lambda x: x.to_dict(), db_tag))
+    quiz = list(map(lambda x: x.to_dict(), db_quiz))
+
+    return render_template("admin.html", tag=tag, quiz=quiz)

@@ -1,0 +1,25 @@
+{%- macro render_question_form(index) %}
+    <div class="mt-3 subform" id="questions-{{ index }}" data-index="{{ index }}">
+        <hr>
+        <p id="questions-no_question">Question {{ index + 1 }}</p>
+        <input required type="hidden" class="form-control" id="questions-{{ index }}-no_question" name="questions-{{ index }}-no_question" value="{{ index }}">
+        <input required type="text" class="form-control question" id="questions-{{ index }}-question" name="questions-{{ index }}-question" placeholder="Question">
+        <p>Choices</p>
+        <div id="questions-{{ index }}-choices">
+            <input type="text" class="form-control choice" id="questions-{{ index }}-choices-0-choice"
+            name="questions-{{ index }}-choices-0-choice" placeholder="choice" data-q="0" data-choice="0">
+            <input type="text" class="form-control mt-1 choice" id="questions-{{ index }}-choices-1-choice"
+            name="questions-{{ index }}-choices-1-choice" placeholder="choice" data-q="0" data-choice="1">
+        </div>
+        <div class="mt-4">
+            <button type="button" id="q-{{ index }}-add" class="form-control add-choice" data-q="0" data-choice="2">Add Choice</button>
+            <button disabled type="button" id="q-{{ index }}-remove" class="form-control remove-choice" data-q="0" data-choice="1">Remove Choice</button>
+        </div>
+        <p class="mt-3">Answer</p>
+        <select class="form-select" id="questions-{{ index }}-answer" name="questions-{{ index }}-answer">
+            <option id="questions-{{ index }}-answer-0" name="questions-{{ index }}-answer"></option>
+            <option id="questions-{{ index }}-answer-1" name="questions-{{ index }}-answer"></option>
+        </select>
+        <hr>
+    </div>
+{%- endmacro %}

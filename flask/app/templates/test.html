@@ -1,0 +1,260 @@
+{% import "question.html" as question_form %}
+{% extends 'navbar.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-12 col-lg-8">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="quiz-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-tab-pane" type="button" role="tab" aria-controls="info-tab-pane" aria-selected="true">Info</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="quiz-tab" data-bs-toggle="tab" data-bs-target="#quiz-tab-pane" type="button" role="tab" aria-controls="quiz-tab-pane" aria-selected="false">Question</button>
+                        </li>
+                    </ul>
+                    <form method="post">
+                    {{ form.csrf_token }}
+                    <input type="submit" class="form-control mt-2" value="Create Quiz">
+                    <div class="tab-content pt-3" id="quiz-content">
+                        <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+                            <div class="justify-content-center align-items-center">
+                                <label>Quiz Name</label>
+                                <input type="hidden" name="quiz-no-q" id="quiz-no-q" value="1">
+                                {{ form.quiz_name(class="form-control", placeholder="Quiz name") }}
+                                <label class="mt-3">Tags</label>
+                                <select class="form-select">
+                                    <option value="tag1">tag1</option>
+                                    <option value="tag2">tag2</option>
+                                    <option value="tag3">tag3</option>
+                                </select>
+                                <label class="mt-3">Difficulty</label>
+                                {{ form.difficulty(class="form-select") }}
+                                <label class="mt-3">Timer</label>
+                                <select class="form-select">
+                                    <option value="None">None</option>
+                                    <option value="15">15s</option>
+                                    <option value="30">30s</option>
+                                    <option value="45">45s</option>
+                                    <option value="60">60s</option>
+                                    <option value="90">1m 30s</option>
+                                    <option value="120">2m</option>
+                                    <option value="150">2m 30s</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="quiz-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                            Question
+                            <div id="questions">
+                                {{ question_form.render_question_form(0) }}
+                            </div>
+                            <div>
+                                <button type="button" class="form-control" id="add-q">Add Question</button>
+                                <button type="button" class="form-control" id="remove-q" disabled>Remove Question</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# form.questions #}
+
+{% endblock %}
+
+{# https://www.rmedgar.com/blog/dynamic-fields-flask-wtf/ #}
+
+{% block script %}
+
+<script>
+
+    let q = 0;
+
+    function replaceTemplateIndex(value, oldIndex, newIndex) {
+        //console.log(value, oldIndex, newIndex);
+        return value.replace(oldIndex, newIndex);
+    };
+
+    function addForm() {
+        let $templateForm = $('#questions-' + q);
+
+        q = q + 1;
+
+        if (q === 1) {
+            $("#remove-q").removeAttr('disabled')
+        }
+
+        $("#quiz-no-q").val(q)
+
+        //console.log($templateForm)
+
+        let $lastForm = $('.subform').last();
+        //console.log(parseInt($lastForm.data('index')))
+
+        let oldIndex = parseInt($lastForm.data('index'))
+        let newIndex = oldIndex + 1
+
+        let $newForm = $templateForm.clone();
+        $newForm.attr('id', ("questions-" + newIndex));
+        $newForm.attr('data-index', newIndex);
+
+        $newForm.find('button, input, select, div, option, p').each(function(idx) {
+            //console.log("do")
+            var $item = $(this);
+
+            if ($item.is('button') || $item.is('div')) {
+                // Update labels
+                $item.attr('data-q', newIndex)
+                if (typeof($item.attr('id')) === "undefined") {
+                    return;
+                }
+                $item.attr('id', replaceTemplateIndex($item.attr('id'), oldIndex, newIndex));
+                return;
+            }
+
+            if ($item.is('p')) {
+                if ($item.attr('id') === "questions-no_question") {
+                    $item.html("Question " + (newIndex + 1))
+                }
+                return;
+            }
+
+            // Update other fields
+            $item.attr('id', replaceTemplateIndex($item.attr('id'), oldIndex, newIndex));
+            $item.attr('name', replaceTemplateIndex($item.attr('name'), oldIndex, newIndex));
+            $item.attr('data-q', newIndex)
+
+            if ($item.attr("type") === "hidden") {
+                $item.attr('value', replaceTemplateIndex($item.attr('value'), oldIndex, newIndex));
+            };
+
+            if ($item.attr("class") === "form-control choice" || $item.attr("class") === "form-control question" || $item.attr("class") === "form-control mt-1 choice") {
+                $item.val("")
+            }
+
+            if ($item.is('option')) {
+                $item.val("")
+                $item.html("")
+            }
+        });
+
+        $('#questions').append($newForm);
+    };
+
+
+    function removeForm() {
+        let templateForm = $('#questions-' + q);
+
+        templateForm.remove()
+
+        q = q - 1
+
+        //console.log(q)
+
+        if (q === 0) {
+            $("#remove-q").attr('disabled', 'disabled')
+        }
+    }
+
+    
+    $(document).ready(function() {
+        $("#add-q").click(addForm);
+    });
+
+    /*
+
+    $(".form-control.add-choice").on("click", function() {
+        let q_no = $(this).data('q')
+        let c = $(this).data('choice')
+        let div_id = "#questions-" + q_no + "-chioce"
+
+        let choices = $(div_id)
+        let input = '<input type="text" class="form-control mt-1" '
+        input += 'id="questions-' + q_no + '-chioce-1-chioce" name="questions-' + q_no + '-chioce-' + c + '-chioce">'
+        let remove_b = '<button class="form-control remove-chioce" data-q="' + q_no + '" data-choice="' + c + '">Remove</button>'
+        choices.append(input + remove_b)
+
+        if (c === 3) {
+            $(this).attr('disabled', 'disabled')
+        }
+
+        $(this).attr("data-choice", (parseInt(c) + 1))
+    });
+
+    */
+
+    $(document).on("click", ".form-control.add-choice" ,function(event) {
+        let q_no = $(this).data('q')
+        let c = this.dataset.choice
+        //console.log(q_no, c)
+
+        c = parseInt(c)
+        let div_id = "#questions-" + q_no + "-choices"
+        let ans = "#questions-" + q_no + "-answer"
+
+        let choices = $(div_id)
+        let input = '<input type="text" class="form-control mt-1 choice" '
+        input += 'id="questions-' + q_no + '-choices-' + c + '-choice" name="questions-' + q_no + '-choices-' + c + '-choice"'
+        input += ' placeholder="choice" data-q="' + q_no + '" data-choice="' + c + '">'
+        choices.append(input)
+
+        let ans_o = '<option id="questions-' + q_no + '-answer-' + c + '" name="questions-' + q_no + '-answer"></option>'
+
+        $(ans).append(ans_o)
+
+        if (c === 3) {
+            $(this).attr('disabled', 'disabled')
+        }
+
+        $(this).attr("data-choice", (c + 1))
+        $("#q-" + q_no + "-remove").attr("data-choice", c)
+
+        if (c === 2) {
+            $("#q-" + q_no + "-remove").removeAttr("disabled")
+        }
+    });
+
+    $(document).on("change", ".choice", function() {
+
+        let c = $(this).data('choice')
+        
+        let id = "#questions-" + $(this).data('q') +  "-answer-" + c
+        $(id).val(parseInt(c))
+        $(id).html($(this).val())
+    })
+
+    $(document).on("click", ".form-control.remove-choice", function() {
+        let q_no = $(this).data('q')
+        let c = this.dataset.choice
+
+        let add = "#q-" + q_no + "-add"
+        let choice = "#questions-" + q_no + "-choices-" + c + "-choice"
+
+        let ans_o = '#questions-' + q_no + '-answer-' + c
+        $(ans_o).remove()
+
+        if (c === "3") {
+            $(add).removeAttr('disabled')
+        }
+
+        $(choice).remove()
+        $(add).attr("data-choice", c)
+        $(this).attr("data-choice", (c - 1))
+
+        if ((c - 1) === 1) {
+            $(this).attr('disabled', 'disabled')
+        }
+
+    })
+
+    $(document).on("click", "#remove-q", removeForm)
+    
+</script>
+
+{% endblock %}
