@@ -14,9 +14,11 @@
                     <div id="my-quiz" class="accordion-collapse collapse show" data-bs-parent="#my-quiz-all">
                         <div class="accordion-body">
                             <div class="list-group" id="my-quiz-list">
-                                {% if my_quiz %}
-                                    {% for quiz in my_quiz %}
-                                        <a href="/quiz/{{ quiz.id }}" class="list-group-item list-group-item-action">{{ quiz.quiz_name }}</a>
+                                {% if quiz %}
+                                    {% for q in quiz %}
+                                        <a href="/quiz/{{ q.id }}" class="list-group-item list-group-item-action">
+                                            {{ q.quiz_name }}
+                                        </a>
                                     {% endfor %}
                                 {% else %}
                                     <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>

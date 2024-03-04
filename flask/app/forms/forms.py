@@ -7,12 +7,12 @@ class Login(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired(message="")])
 
 class SignUp(FlaskForm):
-    name = StringField('Name', validators=[InputRequired(message=""), Length(min=2, max=40)])
+    name = StringField('Name', validators=[InputRequired(message=""), Length(min=2, max=40, message="Name must be longer than 1 letter.")])
     email = EmailField('Email', validators=[InputRequired(message=""), Length(max=50), Email("Invalid Email")])
     password = PasswordField('Password', validators=[InputRequired(message="")])
 
 class EditProfile(FlaskForm):
-    name = StringField('Name', validators=[InputRequired(message=""), Length(min=2, max=40)])
+    name = StringField('Name', validators=[InputRequired(message=""), Length(min=2, max=40, message="Name must be longer than 1 letter.")])
     email = EmailField('Email', validators=[InputRequired(message=""), Length(max=50), Email("Invalid Email")])
     password = PasswordField('Confirm Password', validators=[InputRequired(message="")])
 
