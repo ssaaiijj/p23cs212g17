@@ -56,13 +56,13 @@ def home():
 
 @app.route('/signup', methods=('GET', 'POST'))
 def sign_up():
-
-    form = forms.SignUp()
-
-    if request.method == 'POST':
+    form=forms.SignUp()
+    # app.logger.debug(form.validate_on_submit())
+    # app.logger.debug(form.errors)
+    if form.validate_on_submit():
         result = request.form.to_dict()
         app.logger.debug(str(result))
- 
+
         validated = True
         validated_dict = {}
         valid_keys = ['email', 'name', 'password']
@@ -765,3 +765,4 @@ def admin():
     quiz = list(map(lambda x: x, db_quiz))
 
     return render_template("admin.html", tag=tag, quiz=quiz)
+
