@@ -583,7 +583,7 @@ def del_quiz(qid):
     if not quiz_c or quiz_c.is_deleted:
         abort(404)
 
-    if current_user.id != quiz_c.created_by_id or not current_user.is_admin:
+    if current_user.id != quiz_c.created_by_id and not current_user.is_admin:
         abort(403)
 
     quiz_c.is_deleted = True
@@ -600,7 +600,7 @@ def edit_quiz(qid):
     if not quiz_c or quiz_c.is_deleted:
         abort(404)
 
-    if current_user.id != quiz_c.created_by_id or not current_user.is_admin:
+    if current_user.id != quiz_c.created_by_id and not current_user.is_admin:
         abort(403)
 
     db_tag = Tag.query.all()
