@@ -51,11 +51,13 @@ def home():
 
 @app.route('/signup', methods=('GET', 'POST'))
 def sign_up():
-
-    if request.method == 'POST':
+    form=forms.SignUp()
+    app.logger.debug(form.validate_on_submit())
+    app.logger.debug(form.errors)
+    if form.validate_on_submit():
         result = request.form.to_dict()
         app.logger.debug(str(result))
- 
+
         validated = True
         validated_dict = {}
         valid_keys = ['email', 'name', 'password']
@@ -86,7 +88,7 @@ def sign_up():
                 # if a user is found, we want to redirect back to signup
                 # page so user can try again
                 flash('Email address already exists')
-                return redirect(url_for('signup'))
+                return redirect(url_for('sign_up'))
 
             # create a new user with the form data. Hash the password so
             # the plaintext version isn't saved.
@@ -102,7 +104,7 @@ def sign_up():
 
         return redirect(url_for('home'))
 
-    return app.send_static_file("sign_up.html")
+    return render_template("sign_up.html",form=form)
 
 
 @app.route('/play')
@@ -317,3 +319,4 @@ def admin():
     quiz = list(map(lambda x: x.to_dict(), db_quiz))
 
     return render_template("admin.html", tag=tag, quiz=quiz)
+

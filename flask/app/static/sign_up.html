@@ -22,6 +22,8 @@
                 <div class="card login-section text-center">
                     <div class="card-body">
                         <form method="post">
+                            {{ form.csrf_token }}
+                            
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-person"></i></span>
                                 <input class="form-control" id="name" name="name" type="text" placeholder="Name">
