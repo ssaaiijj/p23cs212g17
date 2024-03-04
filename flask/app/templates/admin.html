@@ -64,7 +64,9 @@
                             <div class="accordion-body">
                                 <div class="list-group" id="my-quiz-list">
                                     {% if tag %}
-                                        have
+                                        {% for t in tag %}
+                                            <a href="#" class="list-group-item list-group-item-action">{{ t["tag"] }}</a>
+                                        {% endfor %}
                                     {% else %}
                                         <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
                                     {% endif %}
@@ -84,7 +86,9 @@
                             <div class="accordion-body">
                                 <div class="list-group" id="other-quiz-list">
                                     {% if quiz %}
-                                        have
+                                        {% for q in quiz %}
+                                            <a href="#" class="list-group-item list-group-item-action">{{ q.quiz_name }}</a>
+                                        {% endfor %}
                                     {% else %}
                                         <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
                                     {% endif %}

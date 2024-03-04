@@ -2,7 +2,7 @@ import secrets
 import string
 
 from flask import (jsonify, render_template,
-                   request, url_for, flash, redirect, abort)
+                   request, url_for, flash, redirect, abort, session)
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.urls import url_parse
@@ -22,6 +22,11 @@ from app import oauth
 
 @app.route('/', methods=('GET', 'POST'))
 def home():
+
+    if current_user.is_authenticated:
+        return redirect(url_for('play'))
+    
+    form = forms.Login()
 
     if request.method == 'POST':
         # login code goes here
@@ -46,7 +51,7 @@ def home():
             next_page = url_for('play')
         return redirect(next_page)
     
-    return app.send_static_file("login.html")
+    return render_template("login.html", form=form)
 
 
 @app.route('/signup', methods=('GET', 'POST'))
@@ -62,6 +67,16 @@ def sign_up():
         validated_dict = {}
         valid_keys = ['email', 'name', 'password']
 
+        if form.email.errors:
+            flash(form.email.errors)
+            validated = False
+            return redirect(url_for('sign_up'))
+        
+        if form.name.errors:
+            flash(form.name.errors)
+            validated = False
+            return redirect(url_for('sign_up'))
+
         # validate the input
         for key in result:
             app.logger.debug(str(key)+": " + str(result[key]))
@@ -72,6 +87,7 @@ def sign_up():
             value = result[key].strip()
             if not value or value == 'undefined':
                 validated = False
+                flash("Value Error")
                 break
             validated_dict[key] = value
             # code to validate and add user to database goes here
@@ -101,30 +117,28 @@ def sign_up():
             # add the new user to the database
             db.session.add(new_user)
             db.session.commit()
+            login_user(new_user)
+            return redirect(url_for("play"))
 
-        return redirect(url_for('home'))
-
-    return app.send_static_file("sign_up.html",form=form)
+    return render_template("sign_up.html", form=form)
 
 
 @app.route('/play')
 @login_required
 def play():
     db_my_quiz = PrivateQuiz.query.filter(
-        PrivateQuiz.created_by_id == current_user.id
+        PrivateQuiz.created_by_id == current_user.id, PrivateQuiz.is_deleted == False
     )
-    my_quiz = list(map(lambda x: x.to_dict(), db_my_quiz))
+    my_quiz = list(map(lambda x: x, db_my_quiz))
     db_other_quiz = PrivateQuiz.query.filter(
-        PrivateQuiz.created_by_id != current_user.id
+        PrivateQuiz.created_by_id != current_user.id, PrivateQuiz.is_deleted == False
     )
-    other_quiz = list(map(lambda x: x.to_dict(), db_other_quiz))
+    other_quiz = list(map(lambda x: x, db_other_quiz))
 
-    return render_template("play.html", my_quiz=my_quiz, other_quiz=other_quiz)
+    db_tag = Tag.query.all()
+    tag = list(map(lambda x: x.to_dict(), db_tag))
 
-
-@app.route('/create-quiz')
-def create_quiz():
-    return render_template("create_quiz.html")
+    return render_template("play.html", my_quiz=my_quiz, other_quiz=other_quiz, tag=tag)
 
 
 @app.route('/google/')
@@ -251,16 +265,6 @@ def crash():
     return 1/0
 
 
-@app.route('/create')
-def createOverview():
-    return app.send_static_file('CreateQuizOver.html')
-
-
-@app.route('/createQuestion')
-def createQuestion():
-    return app.send_static_file('CreateQuizQues.html')
-
-
 @app.route('/db')
 def db_connection():
     try:
@@ -271,9 +275,17 @@ def db_connection():
         return '<h1>db is broken.</h1>' + str(e)
     
     
-@app.route('/quizinfo')
-def quizinfo():
-    return app.send_static_file("quizinfo.html")
+@app.route('/quiz/<int:qid>')
+@login_required
+def quizinfo(qid):
+    quiz = PrivateQuiz.query.get(qid)
+    if not quiz:
+        abort(404)
+
+    user = AuthUser.query.get(quiz.created_by_id)
+    tag = Tag.query.get(quiz.tag_id)
+
+    return render_template("quizinfo.html", quiz=quiz, user=user, tag=tag)
 
 
 @app.route('/leaderboard')
@@ -281,26 +293,267 @@ def leaderboard():
     return app.send_static_file("leaderboard.html")
 
 
-@app.route('/result')
-def result():
-    return app.send_static_file("result.html")
+@app.route('/search', methods=('GET', 'POST'))
+@login_required
+def search():
 
-
-@app.route('/playmode')
-def playmode():
-    return app.send_static_file("playmode.html")
-
-
-@app.route('/test', methods=('GET', 'POST'))
-def test():
-
-    form = forms.Quiz()
+    # https://www.reddit.com/r/flask/comments/usf6uy/how_can_i_apply_multiple_filters_to_the_result_of/
+    # https://forum.jquery.com/portal/en/community/topic/input-field-validate-required-at-least-one-field
 
     if request.method == 'POST':
         result = request.form.to_dict()
-        return jsonify(result)
 
-    return render_template("test.html", form=form)
+        #app.logger.debug(type(list_filter))
+
+        hasInput = False
+
+        result = {key: value for (key, value) in result.items() if value}
+
+        if result:
+            hasInput = True
+
+        if (hasInput):
+            print(result)
+            db_quiz = PrivateQuiz.query.filter_by(**result).all()
+            quiz = list(map(lambda x: x, db_quiz))
+            return render_template("search.html", quiz=quiz)
+        else:
+            flash("Search must has at least one input field")
+            return redirect(url_for('play'))
+        
+    else:
+        return redirect(url_for('play'))
+
+
+
+@app.route('/result', methods=('GET', 'POST'))
+@login_required
+def result():
+
+    if request.method == 'POST':
+        result = request.form.to_dict()
+        qid = result["q_id"]
+
+        quiz = PrivateQuiz.query.get(qid)
+        no_ques = quiz.no_question
+        quiz_data = quiz.quiz_data
+        quiz_data = eval(quiz_data)
+
+        list_ans = dict()
+        list_choose = dict()
+
+        for no_q in quiz_data:
+            list_ans[int(no_q)] = int(quiz_data[no_q]["answer"])
+
+        for key in result:
+            if key == "q_id":
+                continue
+
+            list_key = key.split("-")
+
+            if list_key[0] == "answer":
+                list_choose[int(list_key[1])] = int(result[key])
+
+        all_len = len(list_choose)
+        i = 0
+        score = 0
+
+        while (i < all_len):
+            if list_ans[i] == list_choose[i]:
+                score += 1
+            i += 1
+
+    return render_template("result.html", score=score, no_ques=no_ques, qid=qid)
+
+
+@app.route('/quiz/<int:qid>/play/')
+@login_required
+def playmode(qid):
+
+    quiz = PrivateQuiz.query.get(qid)
+
+    timer = int(quiz.timer)
+
+    if not quiz:
+        abort(404)
+    
+    question = quiz.quiz_data
+    question = eval(question)
+
+    return render_template("playmode.html", question=question, qid=qid, timer=timer)
+
+@app.route('/quiz/<int:qid>/del/', methods=('GET', 'POST'))
+@login_required
+def del_quiz(qid):
+    quiz_c = PrivateQuiz.query.get(qid)
+
+    if not quiz_c:
+        abort(404)
+
+    if current_user.id != quiz_c.created_by_id or current_user.is_admin:
+        abort(403)
+
+    quiz_c.is_deleted = True
+    db.session.commit()
+    return redirect(url_for('play'))
+
+@app.route('/quiz/<int:qid>/edit/', methods=('GET', 'POST'))
+@login_required
+def edit_quiz(qid):
+
+    form = forms.Quiz()
+    quiz_c = PrivateQuiz.query.get(qid)
+
+    if not quiz_c:
+        abort(404)
+
+    if current_user.id != quiz_c.created_by_id or current_user.is_admin:
+        abort(403)
+
+    db_tag = Tag.query.all()
+    tag = list(map(lambda x: x.to_dict(), db_tag))
+    tag_s = Tag.query.get(quiz_c.tag_id)
+
+    question = quiz_c.quiz_data
+    question = eval(question)
+
+    if request.method == 'POST':
+        result = request.form.to_dict()
+
+        quiz = dict()
+        list_que_key = []       
+
+        for key in result:
+            if "questions" in key:
+                list_key = key.split("-")
+                list_que_key.append([key, list_key])
+                continue
+
+            if key == "csrf_token":
+                continue
+
+            quiz[key] = result[key]
+
+        if quiz["timer"] == "None":
+            quiz["timer"] = 0
+            quiz["is_time_limit"] = False
+        else:
+            quiz["is_time_limit"] = True
+
+        question = dict()
+
+        app.logger.debug(list_que_key)
+
+        for pair_key in list_que_key:
+            no_q = pair_key[1][1]
+
+            if no_q not in question:
+                question[no_q] = dict()
+
+            if pair_key[1][2] == "answer":
+                question[no_q]["answer"] = result[pair_key[0]]
+                continue
+
+            if pair_key[1][2] == "question":
+                app.logger.debug(pair_key[0])
+                question[no_q]["question"] = result[pair_key[0]]
+                continue
+
+            if pair_key[1][2] == "choices":
+                if "choices" in question[no_q]:
+                    question[no_q]["choices"].append(result[pair_key[0]])
+                else:
+                    question[no_q]["choices"] = [result[pair_key[0]]]
+
+        quiz["questions"] = question
+
+        app.logger.debug(quiz)
+
+        quiz_c.update(
+            quiz_name=quiz['quiz_name'], is_time_limit=quiz["is_time_limit"], timer=quiz["timer"],
+            tag_id=quiz["tag"], difficulty=quiz["difficulty"], quiz_data=str(quiz['questions']),
+            no_question=quiz["quiz-no-q"]
+        )
+        db.session.commit()
+        return redirect(url_for("play"))
+
+    return render_template("edit_quiz.html", question=question, quiz=quiz_c, form=form, tag=tag, tag_s=tag_s)
+
+
+@app.route('/create', methods=('GET', 'POST'))
+@login_required
+def create():
+
+    form = forms.Quiz()
+    db_tag = Tag.query.all()
+    tag = list(map(lambda x: x.to_dict(), db_tag))
+
+    if request.method == 'POST':
+        result = request.form.to_dict()
+
+        #list_want = []
+
+        quiz = dict()
+        list_que_key = []       
+
+        for key in result:
+            if "questions" in key:
+                list_key = key.split("-")
+                list_que_key.append([key, list_key])
+                continue
+
+            if key == "csrf_token":
+                continue
+
+            quiz[key] = result[key]
+
+        if quiz["timer"] == "None":
+            quiz["timer"] = 0
+            quiz["is_time_limit"] = False
+        else:
+            quiz["is_time_limit"] = True
+
+        question = dict()
+
+        app.logger.debug(list_que_key)
+
+        for pair_key in list_que_key:
+            no_q = pair_key[1][1]
+
+            if no_q not in question:
+                question[no_q] = dict()
+
+            if pair_key[1][2] == "answer":
+                question[no_q]["answer"] = result[pair_key[0]]
+                continue
+
+            if pair_key[1][2] == "question":
+                app.logger.debug(pair_key[0])
+                question[no_q]["question"] = result[pair_key[0]]
+                continue
+
+            if pair_key[1][2] == "choices":
+                if "choices" in question[no_q]:
+                    question[no_q]["choices"].append(result[pair_key[0]])
+                else:
+                    question[no_q]["choices"] = [result[pair_key[0]]]
+
+        quiz["questions"] = question
+
+        app.logger.debug(quiz)
+
+        db.session.add(PrivateQuiz(
+            quiz_name=quiz['quiz_name'], is_time_limit=quiz["is_time_limit"], timer=quiz["timer"],
+            tag_id=quiz["tag"], difficulty=quiz["difficulty"], quiz_data=str(quiz['questions']), own_id=current_user.id,
+            no_question=quiz["quiz-no-q"]
+        ))
+        db.session.commit()
+
+        return redirect(url_for('play'))
+
+
+
+    return render_template("create.html", form=form, tag=tag)
 
 
 

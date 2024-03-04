@@ -17,19 +17,26 @@
     <div class="container-fluid h-100 d-flex justify-content-center align-items-center">
         <div class="row">
             <div class="col w-50">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="alert alert-danger">
+                {{ messages[0] }}
+                </div>
+                {% endif %}
+                {% endwith %}
                 <p class="text-nowrap text-center h1" id="head-name">QuizGame</p>
                 <p class="text-nowrap text-center fs-4" id="head-detail">single-player quiz game platform.</p>
                 <div class="card login-section text-center">
                     <div class="card-body">
                         <form method="post">
-                            
+                            {{ form.csrf_token }}
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input class="form-control" id="email" name="email" type="text" placeholder="Email">
+                                {{ form.email(class="form-control", placeholder="Email") }}
                             </div>
                             <div class="input-group mt-3">
                                 <span class="input-group-text"><i class="bi bi-key"></i></span>
-                                <input class="form-control" id="password" name="password" type="password" placeholder="Password">
+                                {{ form.password(class="form-control", placeholder="Password") }}
                             </div>
                             <div class="login-submit-bg">
                                 <input class="login-button mt-3 btn" type="submit" value="Login">

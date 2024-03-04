@@ -1,0 +1,35 @@
+{% extends 'navbar.html' %}
+{% block content %}
+
+<div class="container-fluid p-4" id="quiz">
+    <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-12 col-lg-8">
+            <div class="accordion" id="my-quiz-all">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#my-quiz" aria-expanded="true" aria-controls="my-quiz">
+                            Search Quiz(s)
+                        </button>
+                    </h2>
+                    <div id="my-quiz" class="accordion-collapse collapse show" data-bs-parent="#my-quiz-all">
+                        <div class="accordion-body">
+                            <div class="list-group" id="my-quiz-list">
+                                {% if quiz %}
+                                    {% for q in quiz %}
+                                        <a href="/quiz/{{ q.id }}" class="list-group-item list-group-item-action">
+                                            {{ q.quiz_name }}
+                                        </a>
+                                    {% endfor %}
+                                {% else %}
+                                    <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

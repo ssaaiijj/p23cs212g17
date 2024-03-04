@@ -10,7 +10,14 @@
 
     <div class="container-fluid p-4" id="quiz">
         <div class="row d-flex justify-content-center align-items-center">
-            <div class="col-8">
+            <div class="col-12 col-lg-8">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="alert alert-danger">
+                {{ messages[0] }}
+                </div>
+                {% endif %}
+                {% endwith %}
                 <div class="accordion" id="my-quiz-all">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
@@ -22,7 +29,9 @@
                             <div class="accordion-body">
                                 <div class="list-group" id="my-quiz-list">
                                     {% if my_quiz %}
-                                        have
+                                        {% for quiz in my_quiz %}
+                                            <a href="/quiz/{{ quiz.id }}" class="list-group-item list-group-item-action">{{ quiz.quiz_name }}</a>
+                                        {% endfor %}
                                     {% else %}
                                         <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
                                     {% endif %}
@@ -42,7 +51,9 @@
                             <div class="accordion-body">
                                 <div class="list-group" id="other-quiz-list">
                                     {% if other_quiz %}
-                                        have
+                                        {% for quiz in other_quiz %}
+                                            <a href="/quiz/{{ quiz.id }}" class="list-group-item list-group-item-action">{{ quiz.quiz_name }}</a>
+                                        {% endfor %}
                                     {% else %}
                                         <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
                                     {% endif %}
@@ -64,50 +75,38 @@
                 </div>
                 <div class="modal-body">
                     <div>
-                        <p>Simple Search</p>
-                        <hr>
-                        <form method="post" id="simple-search">
+                        <form method="post" id="form-search" action="/search">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control simple-search" id="name-tag" placeholder="">
-                                <label for="name-tag">Name/Tag</label>
-                            </div>
-                            <input class="btn btn-secondary" type="submit" value="search">
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <hr>
-                <div class="modal-body">
-                    <div>
-                        <p>Advance Search</p>
-                        <hr>
-                        <form method="post" id="advance-search">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control advance-search" name="name" id="name" placeholder="">
-                                <label for="name">Name</label>
+                                <input type="text" class="form-control search-form" name="quiz_name" id="name" placeholder="">
+                                <label for="quiz_name">Quiz Name</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control advance-search" name="tag" id="tag" placeholder="">
+                                <select class="form-select" name="tag_id">
+                                        <option></option>
+                                    {% for t in tag %}
+                                        <option class="search-form" value="{{ t['id'] }}">{{ t['tag'] }}</option>
+                                    {% endfor %}
+                                </select>
                                 <label for="tag">Tag</label>
                             </div>
                             <div class="form-check">
                                 <label class="form-check-label" for="flexCheckDefault">
                                     Time Limit
                                 </label>
-                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                <input class="form-check-input search-form" name="is_time_limit" type="checkbox" value="1" id="flexCheckDefault">
                             </div>
                             <br>
                             <p>Difficulty</p>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="difficulty" id="difficulty1" value="hard">
+                                <input class="form-check-input search-form" type="radio" name="difficulty" id="difficulty1" value="hard">
                                 <label class="form-check-label" for="difficulty1">Hard</label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="difficulty" id="difficulty2" value="normal">
+                                <input class="form-check-input search-form" type="radio" name="difficulty" id="difficulty2" value="normal">
                                 <label class="form-check-label" for="difficulty2">Normal</label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="difficulty" id="difficulty3" value="easy">
+                                <input class="form-check-input search-form" type="radio" name="difficulty" id="difficulty3" value="easy">
                                 <label class="form-check-label" for="difficulty3">Easy</label>
                               </div>
                             <br><br>
@@ -127,6 +126,8 @@
     $(document).ready(function () {
         $("#play-nav").attr("class", "nav-link active")
     })
+
+    
 </script>
 
 {% endblock %}

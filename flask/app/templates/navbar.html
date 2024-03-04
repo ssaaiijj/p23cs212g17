@@ -53,10 +53,10 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar sticky-top navbar-expand-lg">
         <div class="container-fluid">
             <div class="navbar-brand">
-                <img src="static/img/quiz_logo.png" width="90">
+                <img src="{{ url_for('static', filename='img/quiz_logo.png') }}" width="90">
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -67,7 +67,7 @@
                         <a class="nav-link" id="play-nav" aria-current="page" href="/play">Play</a>
                       </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="create-nav" href="/test">Create</a>
+                        <a class="nav-link" id="create-nav" href="/create">Create</a>
                     </li>
                 </ul>
             </div>

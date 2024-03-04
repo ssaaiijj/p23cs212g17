@@ -1,0 +1,99 @@
+{% extends "navbar.html" %} 
+
+{% block head %}
+
+<style>
+  html,
+  body {
+    font-family: "IBM Plex Sans Thai Looped", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    background-color: #f5f5c3;
+    height: 100%;
+  }
+
+  .navbar {
+    background-color: #b08c64;
+  }
+
+  .nav-link,
+  .dropdown {
+    color: #e3e3e3;
+  }
+
+  .dropdown-menu.profile {
+    background-color: #e6d69c;
+    color: #e3e3e3;
+  }
+
+  .dropdown-item {
+    color: #1b1b1b;
+  }
+
+  .dropdown-item:active {
+    background-color: #ffffb3;
+    color: #1b1b1b;
+  }
+
+  .congrats-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .congrats-card .card-title {
+    margin-bottom: 30px;
+  }
+
+  .list-group-item {
+    border: 0 none;
+    font-size: 18px;
+  }
+
+  .card-footer {
+    background-color: transparent;
+    border-top: 0 none;
+    padding: 1rem 0;
+  }
+</style>
+
+{% endblock %} 
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="congrats-card">
+        <div class="card-body">
+          <h1 class="card-title">
+            {% if score == 0 %}
+              Oh no!
+            {% elif score != no_ques %}
+              Good
+            {% else %}
+              Congratulations
+            {% endif %}
+          </h1>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">{{ current_user.name }}</li>
+            <li class="list-group-item">{{ score }} / {{ no_ques }}</li>
+            <li class="list-group-item">Best Score</li>
+            <li class="list-group-item">User : Score</li>
+          </ul>
+        </div>
+        <div class="card-footer">
+          <a href="/play" type="button" class="btn btn-secondary me-2">Back</a>
+          <button type="button" class="btn btn-primary me-2">
+            Leaderboard
+          </button>
+          <a href="/quiz/{{ qid }}/play/" type="button" class="btn btn-success">Play Again</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
