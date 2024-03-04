@@ -11,7 +11,7 @@ class AuthUser(db.Model, UserMixin):
     email = db.Column(db.String(100), unique=True)
     name = db.Column(db.String(1000))
     password = db.Column(db.String(100))
-    avatar_url = db.Column(db.String(250))
+    avatar_url = db.Column(db.String)
     is_admin = db.Column(db.Boolean)
     my_quizs = db.relationship('Quiz', backref='auth_users', lazy=True)
 
