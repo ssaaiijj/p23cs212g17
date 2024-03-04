@@ -1,0 +1,46 @@
+{% extends 'navbar.html' %}
+
+{% block head %}
+    <link href="static/css/login.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid h-100 d-flex justify-content-center align-items-center">
+    <div class="row">
+        <div class="col w-100">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="alert alert-danger">
+            {{ messages[0] }}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <p class="text-nowrap text-center h1" id="head-name">Edit Profile</p>
+            <div class="card login-section text-center">
+                <div class="card-body">
+                    <form method="post">
+                        {{ form.csrf_token }}
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            {{ form.name(class="form-control", placeholder="Name", value=current_user.name) }}
+                        </div>
+                        <div class="input-group mt-2">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            {{ form.email(class="form-control", placeholder="Email", value=current_user.email) }}
+                        </div>
+                        <div class="input-group mt-2">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            {{ form.password(class="form-control", placeholder="Confirm Password") }}
+                        </div>
+                        <div class="login-submit-bg">
+                            <input class="login-button mt-3 btn" type="submit" value="Edit">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

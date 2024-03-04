@@ -68,7 +68,7 @@
                                         </div>
                                         <div class="mt-4">
                                             <button type="button" id="q-{{ q }}-add" class="form-control add-choice" data-q="{{ q }}" data-choice="{{ ns.choice }}">Add Choice</button>
-                                            <button disabled type="button" id="q-{{ q }}-remove" class="form-control remove-choice" data-q="{{ q }}" data-choice="{{ ns.choice - 1 }}">Remove Choice</button>
+                                            <button type="button" id="q-{{ q }}-remove" class="form-control remove-choice" data-q="{{ q }}" data-choice="{{ ns.choice - 1 }}">Remove Choice</button>
                                         </div>
                                         <p class="mt-3">Answer</p>
                                         <select class="form-select" id="questions-{{ q }}-answer" name="questions-{{ q }}-answer">
@@ -213,6 +213,25 @@
         }
 
         $("#timer option[value='"+ timer +"']").prop('selected', true);
+
+
+        $(".form-control.remove-choice").each( function () {
+            let c = $(this).data('choice')
+
+            if (c === 1) {
+                $(this).attr('disabled', 'disabled')
+            }
+        })
+
+
+        $(".form-control.add-choice").each ( function () {
+            let c = $(this).data('choice')
+
+            if (c === 4) {
+                $(this).attr('disabled', 'disabled')
+            }
+        })
+
     });
 
     /*

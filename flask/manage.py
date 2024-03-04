@@ -15,11 +15,16 @@ def create_db():
 
 @cli.command("seed_db")
 def seed_db():
-    db.session.add(AuthUser(email="flask@204212.com", name='สมชาย ทรงแบด',
+    email_ad = "flask@204212.com"
+    
+    if (not AuthUser.query.filter_by(email=email_ad).first()):
+        admin = AuthUser(email=email_ad, name='สมชาย ทรงแบด',
                             password=generate_password_hash('1234',
                                                             method='sha256'),
                             avatar_url='https://ui-avatars.com/api/?name=\
-สมชาย+ทรงแบด&background=83ee03&color=fff', is_admin=True))
+สมชาย+ทรงแบด&background=83ee03&color=fff', is_admin=True)     
+        db.session.add(admin)
+
     list_tags = ["Game", "Education", "Sport", "LifeStyle", "Movie", "Code"]
 
     for tag in list_tags:

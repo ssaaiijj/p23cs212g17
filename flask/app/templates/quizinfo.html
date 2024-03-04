@@ -23,9 +23,9 @@
                             </div>
                             <div class="btn-container">
                                 <a href="/play" type="button" class="btn btn-secondary">Back</a>
-                                <button type="button" class="btn btn-primary">Leaderboard</button>
+                                <a href="/leaderboard/{{ quiz.id }}" class="btn btn-primary">Leaderboard</a>
                                 <a href="/quiz/{{ quiz.id }}/play/" type="button" class="btn btn-success">Play</a>
-                                {% if current_user.id == quiz.created_by_id %}
+                                {% if current_user.id == quiz.created_by_id or current_user.is_admin %}
                                     <a href="/quiz/{{ quiz.id }}/edit/" type="button" class="btn btn-primary">Edit</a>
                                     <a class="btn btn-primary" id="quiz-del">Delete</a>
                                 {% endif %}
@@ -44,7 +44,9 @@
 <script>
 
     $("#quiz-del").on("click", function () {
-        alert('Are you sure to delete this quiz?')
+        if (!confirm("Delete this quiz?")) {
+            return false;
+        }    
         window.location.replace("/quiz/{{ quiz.id }}/del/");
     })
 

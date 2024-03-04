@@ -135,8 +135,8 @@ def play():
     )
     other_quiz = list(map(lambda x: x, db_other_quiz))
 
-    db_tag = Tag.query.all()
-    tag = list(map(lambda x: x.to_dict(), db_tag))
+    db_tag = Tag.query.filter_by(is_deleted=False).all()
+    tag = list(map(lambda x: x, db_tag))
 
     return render_template("play.html", my_quiz=my_quiz, other_quiz=other_quiz, tag=tag)
 
@@ -274,12 +274,24 @@ def db_connection():
     except Exception as e:
         return '<h1>db is broken.</h1>' + str(e)
     
+
+@app.route('/api/username', methods=('GET', 'POST'))
+def getName():
+
+    if request.method == "POST":
+        result = request.form.to_dict()
+        user_data = AuthUser.query.get(result["user_id"])
+        data = {
+            "name": user_data.name
+        }
+        return jsonify(data)
+    
     
 @app.route('/quiz/<int:qid>')
 @login_required
 def quizinfo(qid):
     quiz = PrivateQuiz.query.get(qid)
-    if not quiz:
+    if not quiz or quiz.is_deleted:
         abort(404)
 
     user = AuthUser.query.get(quiz.created_by_id)
@@ -288,9 +300,70 @@ def quizinfo(qid):
     return render_template("quizinfo.html", quiz=quiz, user=user, tag=tag)
 
 
-@app.route('/leaderboard')
-def leaderboard():
-    return app.send_static_file("leaderboard.html")
+@app.route('/leaderboard/<int:qid>')
+def leaderboard(qid):
+
+    quiz = PrivateQuiz.query.get(qid)
+
+    if not quiz or quiz.is_deleted:
+        abort(404)
+
+    scoreboard = quiz.scoreboard
+    scoreboard = eval(scoreboard)
+
+    print("result", scoreboard)
+
+    return render_template("leaderboard.html", scoreboard=scoreboard, qid=qid)
+
+
+@app.route('/edit-profile', methods=('GET', 'POST'))
+@login_required
+def edit_profile():
+
+    form = forms.EditProfile()
+
+    if request.method == 'POST':
+        # login code goes here
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        validated = True
+
+        if form.email.errors:
+            flash(form.email.errors)
+            validated = False
+        
+        if form.name.errors:
+            flash(form.name.errors)
+            validated = False
+
+        if not check_password_hash(current_user.password, password):
+            validated = False
+            flash('Password incorrect')
+
+        if validated:
+
+            validated_dict = {
+                "name": name,
+                "email": email,
+            }
+
+            if name != current_user.name:
+                profile_pic = gen_avatar_url(email, name)
+                validated_dict['avatar_url'] = profile_pic
+            else:
+                validated_dict['avatar_url'] = current_user.avatar_url
+
+            user_data = AuthUser.query.get(current_user.id)
+            if user_data.id == current_user.id:
+                user_data.update(**validated_dict)
+            db.session.commit()
+
+            return redirect(url_for('play'))
+
+
+    return render_template("edit_profile.html", form=form)
 
 
 @app.route('/search', methods=('GET', 'POST'))
@@ -363,7 +436,127 @@ def result():
                 score += 1
             i += 1
 
+        scoreboard = quiz.scoreboard
+
+        if scoreboard:
+            scoreboard = eval(scoreboard)
+            all_score = len(scoreboard)
+
+            max_p = True
+            updateRank = False
+
+            if all_score < 5:
+                max_p = False
+            
+            for i in range(all_score):
+                rank = scoreboard[i]
+                if rank[0] == current_user.id:
+                    if score > rank[1]:
+                        rank[1] = score
+                        scoreboard[i] = rank
+                        updateRank = True
+                        break
+                else:
+                    if score > rank[1]:
+                        if i == 4:
+                            rank = [current_user.id, score]
+                            scoreboard[i] = rank
+                            updateRank = True
+                            break
+                        else:
+                            for p in range(3, i - 1, -1):
+                                rank_move = scoreboard[p]
+                                scoreboard[p + 1] = rank_move
+                            rank = [current_user.id, score]
+                            scoreboard[i] = rank
+                            updateRank = True
+                            break
+                
+                if (not max_p and not updateRank):
+                    scoreboard[i + 1] = [current_user.id, score]
+
+            quiz.scoreboard = str(scoreboard)
+            db.session.commit()
+
+        else:
+            scoreboard = {0: [current_user.id, score]}
+            scoreboard = str(scoreboard)
+            quiz.scoreboard = scoreboard
+            db.session.commit()
+
+        print("scoreboard", scoreboard)
+
     return render_template("result.html", score=score, no_ques=no_ques, qid=qid)
+
+@app.route('/create-tag', methods=('GET', 'POST'))
+def create_tag():
+
+    if current_user.is_authenticated:
+        if not current_user.is_admin:
+            abort(404)
+            #pass
+    else:
+        abort(404)
+
+    if request.method == 'POST':
+        tag = request.form.get('tag').capitalize()
+
+        tag_db = Tag.query.filter_by(tag=tag).first()
+
+        if tag_db and not tag_db.is_deleted:
+            flash("already have " + tag + " tag")
+            return redirect(url_for('admin'))
+        
+        if tag_db and tag_db.is_deleted:
+            tag_db.tag_db.is_deleted = False
+        else:
+            db.session.add(Tag(tag=tag))
+
+        db.session.commit()
+        return redirect(url_for('admin'))
+
+    else:
+        return redirect(url_for('play'))
+
+
+@app.route('/tag/<int:tid>/edit/', methods=('GET', 'POST'))
+def edit_tag(tid):
+
+    if current_user.is_authenticated:
+        if not current_user.is_admin:
+            abort(404)
+            #pass
+    else:
+        abort(404)
+
+    tag_db = Tag.query.get(tid)
+
+    if request.method == 'POST' and tag_db:
+        tag_db.tag = request.form.get('tag').capitalize()
+        db.session.commit()
+        return redirect(url_for("admin"))
+
+    return render_template("tag_edit.html", tid=tid, tag=tag_db)
+
+
+@app.route('/tag/<int:tid>/del/')
+def del_tag(tid):
+
+    if current_user.is_authenticated:
+        if not current_user.is_admin:
+            abort(404)
+            #pass
+    else:
+        abort(404)
+
+    tag_db = Tag.query.get(tid)
+
+    if not tag_db.is_deleted:
+        print("del tag")
+        tag_db.is_deleted = True
+        db.session.commit()
+    
+    return redirect(url_for("admin"))
 
 
 @app.route('/quiz/<int:qid>/play/')
@@ -374,7 +567,7 @@ def playmode(qid):
 
     timer = int(quiz.timer)
 
-    if not quiz:
+    if not quiz or quiz.is_deleted:
         abort(404)
     
     question = quiz.quiz_data
@@ -387,10 +580,10 @@ def playmode(qid):
 def del_quiz(qid):
     quiz_c = PrivateQuiz.query.get(qid)
 
-    if not quiz_c:
+    if not quiz_c or quiz_c.is_deleted:
         abort(404)
 
-    if current_user.id != quiz_c.created_by_id or current_user.is_admin:
+    if current_user.id != quiz_c.created_by_id or not current_user.is_admin:
         abort(403)
 
     quiz_c.is_deleted = True
@@ -404,10 +597,10 @@ def edit_quiz(qid):
     form = forms.Quiz()
     quiz_c = PrivateQuiz.query.get(qid)
 
-    if not quiz_c:
+    if not quiz_c or quiz_c.is_deleted:
         abort(404)
 
-    if current_user.id != quiz_c.created_by_id or current_user.is_admin:
+    if current_user.id != quiz_c.created_by_id or not current_user.is_admin:
         abort(403)
 
     db_tag = Tag.query.all()
@@ -566,10 +759,10 @@ def admin():
     else:
         abort(404)
 
-    db_tag = Tag.query.all()
+    db_tag = Tag.query.filter_by(is_deleted=False).all()
     db_quiz = PrivateQuiz.query.all()
-    tag = list(map(lambda x: x.to_dict(), db_tag))
-    quiz = list(map(lambda x: x.to_dict(), db_quiz))
+    tag = list(map(lambda x: x, db_tag))
+    quiz = list(map(lambda x: x, db_quiz))
 
     return render_template("admin.html", tag=tag, quiz=quiz)
 

@@ -52,7 +52,25 @@
   <body>
     <div class="container-fluid p-4" id="quiz">
         <div class="row d-flex justify-content-center align-items-center">
-            <div class="col-8">
+            <div class="col-12 col-lg-8">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="alert alert-danger">
+                {{ messages[0] }}
+                </div>
+                {% endif %}
+                {% endwith %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Add Tag
+                    </div>
+                    <div class="card-body">
+                        <form action="/create-tag" method="post">
+                            <input class="form-control" type="text" name="tag" placeholder="Tag name">
+                            <input class="form-control" type="submit">
+                        </form>
+                    </div>
+                </div>
                 <div class="accordion" id="my-quiz-all">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
@@ -65,7 +83,12 @@
                                 <div class="list-group" id="my-quiz-list">
                                     {% if tag %}
                                         {% for t in tag %}
-                                            <a href="#" class="list-group-item list-group-item-action">{{ t["tag"] }}</a>
+                                            <div href="#" class="list-group-item">
+                                                {{ t["tag"] }}<br>
+                                                <a href="/tag/{{ t['id'] }}/edit/">Edit</a>
+                                                <br>
+                                                <a id="del-tag" href="/tag/{{ t['id'] }}/del/" data-tid="{{ t['id'] }}" data-tag="{{ t['tag'] }}">Del</a>
+                                            </div>
                                         {% endfor %}
                                     {% else %}
                                         <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
@@ -87,7 +110,7 @@
                                 <div class="list-group" id="other-quiz-list">
                                     {% if quiz %}
                                         {% for q in quiz %}
-                                            <a href="#" class="list-group-item list-group-item-action">{{ q.quiz_name }}</a>
+                                            <a href="/quiz/{{ q.id }}" class="list-group-item list-group-item-action">{{ q.quiz_name }}</a>
                                         {% endfor %}
                                     {% else %}
                                         <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
@@ -108,6 +131,14 @@
         $("#logout").click(function () {
             window.location.href = "/logout";
         }); 
+
+        $(document).on("click", "#del-tag", function () {
+            if (!confirm("Delete this " + $(this).data('tag') + " tag?" )){
+                return false;
+            }    
+        })
+
+        
     </script>
 
   </body>

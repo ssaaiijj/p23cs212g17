@@ -155,7 +155,7 @@
                     <input type="hidden" name="q_id" value="{{ qid }}">
                     <div class="quiz-header">
                         {% for q in question %}
-                            <h2 id="question">{{ loop.index }} - {{ question[q]["question"] }}</h2>
+                            <h2 id="question">{{ loop.index }} ( {{ question[q]["question"] }} )</h2>
                             <ul>
                             <input type="hidden" name="q_no-{{ q }}" value="{{ q }}">
                             {% set ns = namespace(count=0) %}

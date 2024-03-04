@@ -20,7 +20,7 @@ class Quiz(db.Model, SerializerMixin):
     #tags = db.Column('tag', secondary=tags, lazy='subquery', backref=db.backref('pages', lazy=True))
     #tag = db.relationship('Tag', back_populates="tag")
     difficulty = db.Column(db.String)
-    scoreboard = db.Column(db.PickleType)
+    scoreboard = db.Column(db.String)
     is_deleted = db.Column(db.Boolean, default=False)
 
     def __init__(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question):
@@ -32,6 +32,7 @@ class Quiz(db.Model, SerializerMixin):
         self.quiz_data = quiz_data
         self.no_question = no_question
         self.play_times = 0
+        self.scoreboard = ""
 
     def update(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question):
         self.quiz_name = quiz_name
@@ -50,6 +51,7 @@ class Tag(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String, unique=True)
+    is_deleted = db.Column(db.Boolean, default=False)
     #quizs = db.relationship('Quiz', backref="Tag", lazy=True)
 
     def __init__(self, tag):
