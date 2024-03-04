@@ -142,7 +142,7 @@
     <div class="container-fluid">
         <div class="row d-flex justify-content-center align-items-center">
             <div class="col-12 col-lg-6">
-                <div class="card justify-content-center align-items-center">Timer : <span id="time"></span> minutes!</div>
+                <div id="time-card" class="card justify-content-center align-items-center">Timer : <span id="time"></span> minutes!</div>
             </div>
         </div>
     </div>
@@ -230,12 +230,14 @@
         }
 
         window.onload = function () {
-            display = document.querySelector('#time');
             if (do_time) {
+                display = document.querySelector('#time');
                 startTimer(timer, display);
                 setTimeout(function () {
                     $("form").trigger("submit")
                 }, (timer * 1000))
+            } else {
+                $('#time-card').hide()
             }
         };
     </script>
