@@ -52,8 +52,8 @@ def home():
 @app.route('/signup', methods=('GET', 'POST'))
 def sign_up():
     form=forms.SignUp()
-    app.logger.debug(form.validate_on_submit())
-    app.logger.debug(form.errors)
+    # app.logger.debug(form.validate_on_submit())
+    # app.logger.debug(form.errors)
     if form.validate_on_submit():
         result = request.form.to_dict()
         app.logger.debug(str(result))
@@ -104,7 +104,7 @@ def sign_up():
 
         return redirect(url_for('home'))
 
-    return render_template("sign_up.html",form=form)
+    return app.send_static_file("sign_up.html",form=form)
 
 
 @app.route('/play')
