@@ -26,15 +26,15 @@
                                 <input type="hidden" name="quiz-no-q" id="quiz-no-q" value="1">
                                 {{ form.quiz_name(class="form-control", placeholder="Quiz name") }}
                                 <label class="mt-3">Tags</label>
-                                <select class="form-select">
-                                    <option value="tag1">tag1</option>
-                                    <option value="tag2">tag2</option>
-                                    <option value="tag3">tag3</option>
+                                <select class="form-select" name="tag">
+                                    {% for t in tag %}
+                                        <option value="{{ t['id'] }}">{{ t['tag'] }}</option>
+                                    {% endfor %}
                                 </select>
                                 <label class="mt-3">Difficulty</label>
                                 {{ form.difficulty(class="form-select") }}
                                 <label class="mt-3">Timer</label>
-                                <select class="form-select">
+                                <select class="form-select" name="timer">
                                     <option value="None">None</option>
                                     <option value="15">15s</option>
                                     <option value="30">30s</option>
@@ -90,7 +90,7 @@
             $("#remove-q").removeAttr('disabled')
         }
 
-        $("#quiz-no-q").val(q)
+        $("#quiz-no-q").val(q + 1)
 
         //console.log($templateForm)
 
@@ -154,6 +154,8 @@
         templateForm.remove()
 
         q = q - 1
+
+        $("#quiz-no-q").val(q + 1)
 
         //console.log(q)
 
