@@ -1,0 +1,53 @@
+{% extends "navbar.html" %}
+{% block content %}
+
+
+    <div class="container-fluid p-4">
+        <div class="row justify-content-center align-items-center">
+            <div class="col">
+                <div class="card align-items-center">
+                    <div class="card-header">
+                            Quiz name : {{ quiz.quiz_name }}
+                        </div>
+                        <div class="card-body align-items-center">
+                            <div class="quiz-info"><strong>Create_by:</strong> <span>{{ user.name }}</span></div>
+                            <div class="quiz-info"><strong>Play time:</strong> <span>{{ quiz.quiz_name }}</span></div>
+                            <!-- <div class="quiz-info"><strong>Rating:</strong> <span>4.5 stars</span></div> -->
+                            <div class="quiz-info"><strong>Time limit:</strong> <span>{{ quiz.is_time_limit }}</span></div>
+                            {% if quiz.is_time_limit %}
+                                <div class="quiz-info"><strong>Timer:</strong> <span>{{ quiz.timer }}s</span></div>
+                            {% endif %}
+                            <div class="quiz-info"><strong>Difficulty:</strong> <span>{{ quiz.difficulty }}</span></div>
+                            <div class="tag">
+                                <strong>Tag:</strong><span class="tag"> {{ tag.tag }} </span>
+                            </div>
+                            <div class="btn-container">
+                                <a href="/play" type="button" class="btn btn-secondary">Back</a>
+                                <button type="button" class="btn btn-primary">Leaderboard</button>
+                                <a href="/quiz/{{ quiz.id }}/play/" type="button" class="btn btn-success">Play</a>
+                                {% if current_user.id == quiz.created_by_id %}
+                                    <a href="/quiz/{{ quiz.id }}/edit/" type="button" class="btn btn-primary">Edit</a>
+                                    <a class="btn btn-primary" id="quiz-del">Delete</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock  %}
+
+{% block script %}
+
+<script>
+
+    $("#quiz-del").on("click", function () {
+        alert('Are you sure to delete this quiz?')
+        window.location.replace("/quiz/{{ quiz.id }}/del/");
+    })
+
+</script>
+
+{% endblock script %}

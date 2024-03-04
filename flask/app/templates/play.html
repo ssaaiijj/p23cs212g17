@@ -10,7 +10,7 @@
 
     <div class="container-fluid p-4" id="quiz">
         <div class="row d-flex justify-content-center align-items-center">
-            <div class="col-8">
+            <div class="col-12 col-lg-8">
                 <div class="accordion" id="my-quiz-all">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
@@ -22,7 +22,9 @@
                             <div class="accordion-body">
                                 <div class="list-group" id="my-quiz-list">
                                     {% if my_quiz %}
-                                        have
+                                        {% for quiz in my_quiz %}
+                                            <a href="/quiz/{{ quiz.id }}" class="list-group-item list-group-item-action">{{ quiz.quiz_name }}</a>
+                                        {% endfor %}
                                     {% else %}
                                         <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
                                     {% endif %}
@@ -42,7 +44,9 @@
                             <div class="accordion-body">
                                 <div class="list-group" id="other-quiz-list">
                                     {% if other_quiz %}
-                                        have
+                                        {% for quiz in other_quiz %}
+                                            <a href="/quiz/{{ quiz.id }}" class="list-group-item list-group-item-action">{{ quiz.quiz_name }}</a>
+                                        {% endfor %}
                                     {% else %}
                                         <a href="#" class="list-group-item list-group-item-action">Don't have any quizs yet</a>
                                     {% endif %}
@@ -64,30 +68,17 @@
                 </div>
                 <div class="modal-body">
                     <div>
-                        <p>Simple Search</p>
-                        <hr>
-                        <form method="post" id="simple-search">
+                        <form method="post" id="advance-search" action="/search">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control simple-search" id="name-tag" placeholder="">
-                                <label for="name-tag">Name/Tag</label>
-                            </div>
-                            <input class="btn btn-secondary" type="submit" value="search">
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <hr>
-                <div class="modal-body">
-                    <div>
-                        <p>Advance Search</p>
-                        <hr>
-                        <form method="post" id="advance-search">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control advance-search" name="name" id="name" placeholder="">
-                                <label for="name">Name</label>
+                                <input type="text" class="form-control advance-search" name="quiz_name" id="name" placeholder="">
+                                <label for="quiz_name">Quiz Name</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control advance-search" name="tag" id="tag" placeholder="">
+                                <select class="form-select" name="tag">
+                                    {% for t in tag %}
+                                        <option value="{{ t['id'] }}">{{ t['tag'] }}</option>
+                                    {% endfor %}
+                                </select>
                                 <label for="tag">Tag</label>
                             </div>
                             <div class="form-check">

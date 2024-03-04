@@ -12,7 +12,7 @@ class Quiz(db.Model, SerializerMixin):
     is_time_limit = db.Column(db.Boolean)
     timer = db.Column(db.Integer)
     no_question = db.Column(db.Integer)
-    quiz_data = db.Column(db.PickleType)
+    quiz_data = db.Column(db.String)
     play_times = db.Column(db.Integer)
     #rating = db.Column(db.Float(precision=2))
     #rate_voter = db.Column(db.Integer)
@@ -21,15 +21,26 @@ class Quiz(db.Model, SerializerMixin):
     #tag = db.relationship('Tag', back_populates="tag")
     difficulty = db.Column(db.String)
     scoreboard = db.Column(db.PickleType)
-    deleted = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.Boolean, default=False)
 
-    def __init__(self, quiz_name, is_time_limit, tag, difficulty):
+    def __init__(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question):
         self.quiz_name = quiz_name
         self.is_time_limit = is_time_limit
-        self.tag = tag
+        self.timer = timer
+        self.tag_id = tag_id
         self.difficulty = difficulty
+        self.quiz_data = quiz_data
+        self.no_question = no_question
         self.play_times = 0
-        self.rating = 0
+
+    def update(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question):
+        self.quiz_name = quiz_name
+        self.is_time_limit = is_time_limit
+        self.timer = timer
+        self.tag_id = tag_id
+        self.difficulty = difficulty
+        self.quiz_data = quiz_data
+        self.no_question = no_question
     
     def add_play_times(self):
         self.play_times += 1
@@ -39,7 +50,7 @@ class Tag(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String, unique=True)
-    quizs = db.relationship('Quiz', backref="Tag", lazy=True)
+    #quizs = db.relationship('Quiz', backref="Tag", lazy=True)
 
     def __init__(self, tag):
         self.tag = tag

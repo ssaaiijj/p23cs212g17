@@ -1,7 +1,8 @@
 from flask.cli import FlaskGroup
 from werkzeug.security import generate_password_hash
 from app import app, db
-from app.models.authuser import AuthUser
+from app.models.authuser import AuthUser, PrivateQuiz
+from app.models.quiz import Tag
 from datetime import datetime, timezone
 
 cli = FlaskGroup(app)
@@ -19,6 +20,11 @@ def seed_db():
                                                             method='sha256'),
                             avatar_url='https://ui-avatars.com/api/?name=\
 สมชาย+ทรงแบด&background=83ee03&color=fff', is_admin=True))
+    list_tags = ["Game", "Education", "Sport", "LifeStyle", "Movie", "Code"]
+
+    for tag in list_tags:
+        db.session.add(Tag(tag=tag))
+
     db.session.commit()
 
 if __name__ == "__main__":
