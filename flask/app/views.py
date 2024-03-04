@@ -209,7 +209,7 @@ def facebook_auth():
     token = oauth.facebook.authorize_access_token()
     app.logger.debug(str(token))
     resp = oauth.facebook.get(
-        'https://graph.facebook.com/me?fields=id,name,email,picture{url}')
+        'https://graph.facebook.com/me?fields=id,name,email,picture.type(small){url}')
     profile = resp.json()
     app.logger.debug("Facebook User ", profile)
     user = AuthUser.query.filter_by(email=profile['email']).first()
@@ -309,7 +309,8 @@ def leaderboard(qid):
         abort(404)
 
     scoreboard = quiz.scoreboard
-    scoreboard = eval(scoreboard)
+    if scoreboard:
+        scoreboard = eval(scoreboard)
 
     app.logger.debug("result", scoreboard)
 
@@ -456,15 +457,18 @@ def result():
                         scoreboard[i] = rank
                         updateRank = True
                         break
+                    else:
+                        updateRank = True
+                        break
                 else:
                     if score > rank[1]:
-                        if i == 4:
+                        if i == all_score - 1 and max_p:
                             rank = [current_user.id, score]
                             scoreboard[i] = rank
                             updateRank = True
                             break
                         else:
-                            for p in range(3, i - 1, -1):
+                            for p in range(all_score - 1, i - 1, -1):
                                 rank_move = scoreboard[p]
                                 scoreboard[p + 1] = rank_move
                             rank = [current_user.id, score]
@@ -472,8 +476,8 @@ def result():
                             updateRank = True
                             break
                 
-                if (not max_p and not updateRank):
-                    scoreboard[i + 1] = [current_user.id, score]
+            if (not max_p and not updateRank):
+                scoreboard[i + 1] = [current_user.id, score]
 
             quiz.scoreboard = str(scoreboard)
             db.session.commit()
@@ -483,8 +487,6 @@ def result():
             scoreboard = str(scoreboard)
             quiz.scoreboard = scoreboard
             db.session.commit()
-
-        app.logger.debug("scoreboard", scoreboard)
 
     return render_template("result.html", score=score, no_ques=no_ques, qid=qid)
 
