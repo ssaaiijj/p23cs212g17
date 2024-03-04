@@ -25,6 +25,8 @@ def home():
 
     if current_user.is_authenticated:
         return redirect(url_for('play'))
+    
+    form = forms.Login()
 
     if request.method == 'POST':
         # login code goes here
@@ -49,11 +51,13 @@ def home():
             next_page = url_for('play')
         return redirect(next_page)
     
-    return app.send_static_file("login.html")
+    return render_template("login.html", form=form)
 
 
 @app.route('/signup', methods=('GET', 'POST'))
 def sign_up():
+
+    form = forms.SignUp()
 
     if request.method == 'POST':
         result = request.form.to_dict()
@@ -62,6 +66,16 @@ def sign_up():
         validated = True
         validated_dict = {}
         valid_keys = ['email', 'name', 'password']
+
+        if form.email.errors:
+            flash(form.email.errors)
+            validated = False
+            return redirect(url_for('sign_up'))
+        
+        if form.name.errors:
+            flash(form.name.errors)
+            validated = False
+            return redirect(url_for('sign_up'))
 
         # validate the input
         for key in result:
@@ -73,6 +87,7 @@ def sign_up():
             value = result[key].strip()
             if not value or value == 'undefined':
                 validated = False
+                flash("Value Error")
                 break
             validated_dict[key] = value
             # code to validate and add user to database goes here
@@ -89,7 +104,7 @@ def sign_up():
                 # if a user is found, we want to redirect back to signup
                 # page so user can try again
                 flash('Email address already exists')
-                return redirect(url_for('signup'))
+                return redirect(url_for('sign_up'))
 
             # create a new user with the form data. Hash the password so
             # the plaintext version isn't saved.
@@ -102,10 +117,10 @@ def sign_up():
             # add the new user to the database
             db.session.add(new_user)
             db.session.commit()
+            login_user(new_user)
+            return redirect(url_for("play"))
 
-        return redirect(url_for('home'))
-
-    return app.send_static_file("sign_up.html")
+    return render_template("sign_up.html", form=form)
 
 
 @app.route('/play')
@@ -283,12 +298,29 @@ def leaderboard():
 def search():
 
     # https://www.reddit.com/r/flask/comments/usf6uy/how_can_i_apply_multiple_filters_to_the_result_of/
+    # https://forum.jquery.com/portal/en/community/topic/input-field-validate-required-at-least-one-field
 
     if request.method == 'POST':
         result = request.form.to_dict()
 
-        return jsonify(result)
-    
+        #app.logger.debug(type(list_filter))
+
+        hasInput = False
+
+        result = {key: value for (key, value) in result.items() if value}
+
+        if result:
+            hasInput = True
+
+        if (hasInput):
+            print(result)
+            db_quiz = PrivateQuiz.query.filter_by(**result).all()
+            quiz = list(map(lambda x: x, db_quiz))
+            return render_template("search.html", quiz=quiz)
+        else:
+            flash("Search must has at least one input field")
+            return redirect(url_for('play'))
+        
     else:
         return redirect(url_for('play'))
 
@@ -358,7 +390,7 @@ def del_quiz(qid):
     if not quiz_c:
         abort(404)
 
-    if current_user.id != quiz_c.created_by_id:
+    if current_user.id != quiz_c.created_by_id or current_user.is_admin:
         abort(403)
 
     quiz_c.is_deleted = True
@@ -375,7 +407,7 @@ def edit_quiz(qid):
     if not quiz_c:
         abort(404)
 
-    if current_user.id != quiz_c.created_by_id:
+    if current_user.id != quiz_c.created_by_id or current_user.is_admin:
         abort(403)
 
     db_tag = Tag.query.all()
@@ -410,7 +442,7 @@ def edit_quiz(qid):
 
         question = dict()
 
-        print(list_que_key)
+        app.logger.debug(list_que_key)
 
         for pair_key in list_que_key:
             no_q = pair_key[1][1]
@@ -423,7 +455,7 @@ def edit_quiz(qid):
                 continue
 
             if pair_key[1][2] == "question":
-                print(pair_key[0])
+                app.logger.debug(pair_key[0])
                 question[no_q]["question"] = result[pair_key[0]]
                 continue
 
@@ -435,7 +467,7 @@ def edit_quiz(qid):
 
         quiz["questions"] = question
 
-        print(quiz)
+        app.logger.debug(quiz)
 
         quiz_c.update(
             quiz_name=quiz['quiz_name'], is_time_limit=quiz["is_time_limit"], timer=quiz["timer"],
@@ -483,7 +515,7 @@ def create():
 
         question = dict()
 
-        print(list_que_key)
+        app.logger.debug(list_que_key)
 
         for pair_key in list_que_key:
             no_q = pair_key[1][1]
@@ -496,7 +528,7 @@ def create():
                 continue
 
             if pair_key[1][2] == "question":
-                print(pair_key[0])
+                app.logger.debug(pair_key[0])
                 question[no_q]["question"] = result[pair_key[0]]
                 continue
 
@@ -508,7 +540,7 @@ def create():
 
         quiz["questions"] = question
 
-        print(quiz)
+        app.logger.debug(quiz)
 
         db.session.add(PrivateQuiz(
             quiz_name=quiz['quiz_name'], is_time_limit=quiz["is_time_limit"], timer=quiz["timer"],
