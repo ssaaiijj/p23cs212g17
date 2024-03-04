@@ -20,6 +20,8 @@ from app.forms import forms
 from app import oauth
 
 
+# https://docs.google.com/document/d/1M2yNpSx7RDd1W8eEepHpRToVkDPE19sWFjAksOZNAtU/edit#heading=h.i0il23av91hx
+
 @app.route('/', methods=('GET', 'POST'))
 def home():
 
@@ -139,6 +141,10 @@ def play():
     tag = list(map(lambda x: x, db_tag))
 
     return render_template("play.html", my_quiz=my_quiz, other_quiz=other_quiz, tag=tag)
+
+
+# https://docs.google.com/document/d/1lQsFttDZNuCDdDj1xvLfp5vKXPUQYlpny80k_j06q0M/edit#heading=h.w5x4m9brv52k
+# https://www.geeksforgeeks.org/oauth-authentication-with-flask-connect-to-google-twitter-and-facebook/
 
 
 @app.route('/google/')
