@@ -9,7 +9,7 @@ cli = FlaskGroup(app)
 
 @cli.command("create_db")
 def create_db():
-    db.drop_all() # debug mode
+    #db.drop_all() # debug mode
     db.create_all()
     db.session.commit()
 

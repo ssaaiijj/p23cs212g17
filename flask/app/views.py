@@ -311,7 +311,7 @@ def leaderboard(qid):
     scoreboard = quiz.scoreboard
     scoreboard = eval(scoreboard)
 
-    print("result", scoreboard)
+    app.logger.debug("result", scoreboard)
 
     return render_template("leaderboard.html", scoreboard=scoreboard, qid=qid)
 
@@ -386,7 +386,7 @@ def search():
             hasInput = True
 
         if (hasInput):
-            print(result)
+            app.logger.debug(result)
             db_quiz = PrivateQuiz.query.filter_by(**result).all()
             quiz = list(map(lambda x: x, db_quiz))
             return render_template("search.html", quiz=quiz)
@@ -484,7 +484,7 @@ def result():
             quiz.scoreboard = scoreboard
             db.session.commit()
 
-        print("scoreboard", scoreboard)
+        app.logger.debug("scoreboard", scoreboard)
 
     return render_template("result.html", score=score, no_ques=no_ques, qid=qid)
 
@@ -552,7 +552,7 @@ def del_tag(tid):
     tag_db = Tag.query.get(tid)
 
     if not tag_db.is_deleted:
-        print("del tag")
+        app.logger.debug("del tag")
         tag_db.is_deleted = True
         db.session.commit()
     
@@ -583,7 +583,7 @@ def del_quiz(qid):
     if not quiz_c or quiz_c.is_deleted:
         abort(404)
 
-    if current_user.id != quiz_c.created_by_id or not current_user.is_admin:
+    if current_user.id != quiz_c.created_by_id and not current_user.is_admin:
         abort(403)
 
     quiz_c.is_deleted = True
@@ -600,7 +600,7 @@ def edit_quiz(qid):
     if not quiz_c or quiz_c.is_deleted:
         abort(404)
 
-    if current_user.id != quiz_c.created_by_id or not current_user.is_admin:
+    if current_user.id != quiz_c.created_by_id and not current_user.is_admin:
         abort(403)
 
     db_tag = Tag.query.all()
