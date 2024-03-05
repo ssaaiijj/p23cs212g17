@@ -50,6 +50,7 @@
                             Question
                             <div id="questions">
                                 {% set que = namespace(q=0) %}
+                                {% set ns = namespace(choice=0) %}
                                 {% for q in question %}
                                     {% set que.q = que.q + 1 %}
                                     <div class="mt-3 subform" id="questions-{{ q }}" data-index="{{ q }}">
@@ -59,7 +60,7 @@
                                         <input required type="text" class="form-control question" id="questions-{{ q }}-question" name="questions-{{ q }}-question" value="{{ question[q]['question'] }}">
                                         <p>Choices</p>
                                         <div id="questions-{{ q }}-choices">
-                                        {% set ns = namespace(choice=0) %}
+                                        {% set ns.choice = 0 %}
                                         {% for c in question[q]["choices"] %}
                                             <input type="text" class="form-control choice" id="questions-{{ q }}-choices-{{ ns.choice }}-choice" value="{{ c }}"
                                             name="questions-{{ q }}-choices-{{ ns.choice }}-choice" placeholder="choice" data-q="{{ q }}" data-choice="{{ ns.choice }}">
@@ -74,12 +75,12 @@
                                         <select class="form-select" id="questions-{{ q }}-answer" name="questions-{{ q }}-answer">
                                         {% set ns.choice = 0 %}
                                         {% for c in question[q]["choices"] %}
-                                            {% if question[q]["answer"] == c %}
+                                            {% if question[q]["answer"]|int == ns.choice %}
                                                 <option id="questions-{{ q }}-answer-{{ ns.choice }}" name="questions-{{ q }}-answer" selected value="{{ ns.choice }}">{{ c }}</option>
                                             {% else %}
                                                 <option id="questions-{{ q }}-answer-{{ ns.choice }}" name="questions-{{ q }}-answer" value="{{ ns.choice }}">{{ c }}</option>
                                             {% endif %}
-                                        {% set ns.choice = ns.choice + 1 %}
+                                            {% set ns.choice = ns.choice + 1 %}
                                         {% endfor %}
                                         </select>
                                         <hr>
