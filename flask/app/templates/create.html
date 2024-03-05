@@ -25,6 +25,8 @@
                                 <label>Quiz Name</label>
                                 <input type="hidden" name="quiz-no-q" id="quiz-no-q" value="1">
                                 {{ form.quiz_name(class="form-control", placeholder="Quiz name") }}
+                                {{ form.detail.label(class="mt-1") }}
+                                {{ form.detail(class="form-control", placeholder="Quiz detail") }}
                                 <label class="mt-3">Tags</label>
                                 <select class="form-select" name="tag">
                                     {% for t in tag %}

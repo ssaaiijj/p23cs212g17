@@ -21,9 +21,10 @@ class Quiz(db.Model, SerializerMixin):
     #tag = db.relationship('Tag', back_populates="tag")
     difficulty = db.Column(db.String)
     scoreboard = db.Column(db.String)
+    detail = db.Column(db.String)
     is_deleted = db.Column(db.Boolean, default=False)
 
-    def __init__(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question):
+    def __init__(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question, detail):
         self.quiz_name = quiz_name
         self.is_time_limit = is_time_limit
         self.timer = timer
@@ -31,10 +32,11 @@ class Quiz(db.Model, SerializerMixin):
         self.difficulty = difficulty
         self.quiz_data = quiz_data
         self.no_question = no_question
+        self.detail = detail
         self.play_times = 0
         self.scoreboard = ""
 
-    def update(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question):
+    def update(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question, detail):
         self.quiz_name = quiz_name
         self.is_time_limit = is_time_limit
         self.timer = timer
@@ -42,6 +44,7 @@ class Quiz(db.Model, SerializerMixin):
         self.difficulty = difficulty
         self.quiz_data = quiz_data
         self.no_question = no_question
+        self.detail = detail
     
     def add_play_times(self):
         self.play_times += 1

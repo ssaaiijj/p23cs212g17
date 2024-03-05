@@ -302,8 +302,9 @@ def quizinfo(qid):
 
     user = AuthUser.query.get(quiz.created_by_id)
     tag = Tag.query.get(quiz.tag_id)
+    detail = quiz.detail.split('\n')
 
-    return render_template("quizinfo.html", quiz=quiz, user=user, tag=tag)
+    return render_template("quizinfo.html", quiz=quiz, user=user, tag=tag, detail=detail)
 
 
 @app.route('/leaderboard/<int:qid>')
@@ -662,6 +663,10 @@ def edit_quiz(qid):
     question = quiz_c.quiz_data
     question = eval(question)
 
+    detail = quiz_c.detail.split('/\r?\n/')
+
+    print("detail", detail)
+
     if request.method == 'POST':
         result = request.form.to_dict()
 
@@ -717,12 +722,12 @@ def edit_quiz(qid):
         quiz_c.update(
             quiz_name=quiz['quiz_name'], is_time_limit=quiz["is_time_limit"], timer=quiz["timer"],
             tag_id=quiz["tag"], difficulty=quiz["difficulty"], quiz_data=str(quiz['questions']),
-            no_question=quiz["quiz-no-q"]
+            no_question=quiz["quiz-no-q"], detail=quiz["detail"]
         )
         db.session.commit()
         return redirect(url_for("play"))
 
-    return render_template("edit_quiz.html", question=question, quiz=quiz_c, form=form, tag=tag, tag_s=tag_s)
+    return render_template("edit_quiz.html", question=question, quiz=quiz_c, form=form, tag=tag, tag_s=tag_s, detail=detail)
 
 
 @app.route('/create', methods=('GET', 'POST'))
@@ -790,7 +795,7 @@ def create():
         db.session.add(PrivateQuiz(
             quiz_name=quiz['quiz_name'], is_time_limit=quiz["is_time_limit"], timer=quiz["timer"],
             tag_id=quiz["tag"], difficulty=quiz["difficulty"], quiz_data=str(quiz['questions']), own_id=current_user.id,
-            no_question=quiz["quiz-no-q"]
+            no_question=quiz["quiz-no-q"], detail=quiz["detail"]
         ))
         db.session.commit()
 
