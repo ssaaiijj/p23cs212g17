@@ -307,6 +307,7 @@ def quizinfo(qid):
 
 
 @app.route('/leaderboard/<int:qid>')
+@login_required
 def leaderboard(qid):
 
     quiz = PrivateQuiz.query.get(qid)
