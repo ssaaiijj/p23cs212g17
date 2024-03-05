@@ -130,14 +130,14 @@ def sign_up():
 def play():
     db_my_quiz = PrivateQuiz.query.filter(
         PrivateQuiz.created_by_id == current_user.id, PrivateQuiz.is_deleted == False
-    )
+    ).order_by(PrivateQuiz.id)
     my_quiz = list(map(lambda x: x, db_my_quiz))
     db_other_quiz = PrivateQuiz.query.filter(
         PrivateQuiz.created_by_id != current_user.id, PrivateQuiz.is_deleted == False
-    )
+    ).order_by(PrivateQuiz.id)
     other_quiz = list(map(lambda x: x, db_other_quiz))
 
-    db_tag = Tag.query.filter_by(is_deleted=False).all()
+    db_tag = Tag.query.filter_by(is_deleted=False).order_by(Tag.id).all()
     tag = list(map(lambda x: x, db_tag))
 
     return render_template("play.html", my_quiz=my_quiz, other_quiz=other_quiz, tag=tag)
@@ -388,15 +388,58 @@ def search():
         hasInput = False
 
         result = {key: value for (key, value) in result.items() if value}
-
+        
         if result:
             hasInput = True
+            result["is_deleted"] = False
 
         if (hasInput):
+            list_search = []
+            list_temp = []
             app.logger.debug(result)
-            db_quiz = PrivateQuiz.query.filter_by(**result).all()
-            quiz = list(map(lambda x: x, db_quiz))
-            return render_template("search.html", quiz=quiz)
+            if result.get("quiz_name"):
+                # https://stackoverflow.com/questions/4697535/how-can-i-check-if-a-letter-in-a-string-is-capitalized-using-python
+                uppers = [l for l in result.get("quiz_name") if l.isupper()]
+                db_quiz = PrivateQuiz.query.filter(
+                    PrivateQuiz.quiz_name.contains(result.get("quiz_name")),
+                ).order_by(PrivateQuiz.id)
+                temp = list(map(lambda x: x, db_quiz))
+                list_temp.extend(temp)
+                #print(list_temp)
+                if result.get("quiz_name").lower():
+                    db_quiz = PrivateQuiz.query.filter(
+                        PrivateQuiz.quiz_name.contains(result.get("quiz_name").capitalize()),
+                    ).order_by(PrivateQuiz.id)
+                    temp = list(map(lambda x: x, db_quiz))
+                    for t in temp:
+                        if t not in list_temp:
+                            list_temp.append(t)
+                    #print(list_temp)
+                if uppers:
+                    db_quiz = PrivateQuiz.query.filter(
+                        PrivateQuiz.quiz_name.contains(result.get("quiz_name").lower()),
+                    ).order_by(PrivateQuiz.id)
+                    temp = list(map(lambda x: x, db_quiz))
+                    for t in temp:
+                        if t not in list_temp:
+                            list_temp.append(t)
+
+                result.pop("quiz_name")
+
+                for key in result:
+                    for data in list_temp:
+                        if data.get_data(key) == result.get(key):
+                            if data not in list_search:
+                                list_search.append(data)
+
+                if not list_search:
+                    list_search = list_temp
+
+            else:
+                db_quiz = PrivateQuiz.query.filter_by(**result).order_by(PrivateQuiz.id).all()
+                list_search = list(map(lambda x: x, db_quiz))
+            
+            return render_template("search.html", quiz=list_search)
         else:
             flash("Search must has at least one input field")
             return redirect(url_for('play'))
@@ -611,7 +654,7 @@ def edit_quiz(qid):
     if current_user.id != quiz_c.created_by_id and not current_user.is_admin:
         abort(403)
 
-    db_tag = Tag.query.all()
+    db_tag = Tag.query.filter_by(is_deleted=False).order_by(Tag.id).all()
     tag = list(map(lambda x: x.to_dict(), db_tag))
     tag_s = Tag.query.get(quiz_c.tag_id)
 
@@ -686,7 +729,7 @@ def edit_quiz(qid):
 def create():
 
     form = forms.Quiz()
-    db_tag = Tag.query.all()
+    db_tag = Tag.query.filter_by(is_deleted=False).order_by(Tag.id).all()
     tag = list(map(lambda x: x.to_dict(), db_tag))
 
     if request.method == 'POST':
@@ -767,8 +810,8 @@ def admin():
     else:
         abort(404)
 
-    db_tag = Tag.query.filter_by(is_deleted=False).all()
-    db_quiz = PrivateQuiz.query.all()
+    db_tag = Tag.query.filter_by(is_deleted=False).order_by(Tag.id).all()
+    db_quiz = PrivateQuiz.query.filter_by(is_deleted=False).order_by(PrivateQuiz.id).all()
     tag = list(map(lambda x: x, db_tag))
     quiz = list(map(lambda x: x, db_quiz))
 
