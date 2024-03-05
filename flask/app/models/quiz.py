@@ -46,6 +46,17 @@ class Quiz(db.Model, SerializerMixin):
     def add_play_times(self):
         self.play_times += 1
 
+    def get_data(self, var):
+        if var == "is_time_limit":
+            return self.is_time_limit
+        if var == "is_deleted":
+            return self.is_deleted
+        if var == "difficulty":
+            return self.difficulty
+        if var == "tag_id":
+            return self.tag_id
+        return ""
+
 class Tag(db.Model, SerializerMixin):
     __tablename__ = "tag"
 
