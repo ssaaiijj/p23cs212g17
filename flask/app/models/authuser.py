@@ -30,6 +30,6 @@ class AuthUser(db.Model, UserMixin):
 class PrivateQuiz(Quiz, UserMixin, SerializerMixin):
     created_by_id = db.Column(db.Integer, db.ForeignKey('auth_users.id'))
 
-    def __init__(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question, own_id):
-        super().__init__(quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question)
+    def __init__(self, quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question, detail, own_id):
+        super().__init__(quiz_name, is_time_limit, timer, tag_id, difficulty, quiz_data, no_question, detail)
         self.created_by_id = own_id

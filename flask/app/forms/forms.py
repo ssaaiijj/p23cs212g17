@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import (StringField, EmailField, FieldList, PasswordField, IntegerField, FormField, RadioField, SelectField)
+from wtforms import (StringField, EmailField, FieldList, PasswordField, 
+                     IntegerField, FormField, RadioField, SelectField, TextAreaField)
 from wtforms.validators import InputRequired, Length, Email
 
 class Login(FlaskForm):
@@ -31,3 +32,4 @@ class Quiz(FlaskForm):
     difficulty = SelectField('Difficulty', choices=[('easy', 'Easy'), ('normal', 'Normal'), ('hard', 'Hard')], validators=[InputRequired(message="")])
     timer = SelectField('Timer', validators=[InputRequired(message="")])
     questions = FieldList(FormField(Question), min_entries=1)
+    detail = TextAreaField("Quiz Detail", validators=[InputRequired(message="")])

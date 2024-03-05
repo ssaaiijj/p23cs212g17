@@ -22,6 +22,7 @@ if [ "$APP_ENV" = "development" ]; then
         gunicorn main:app -c "$PWD"/gunicorn.config.py
     fi
 else
+    python3 manage.py create_db
     echo "Running on gunicorn"
     gunicorn main:app -c "$PWD"/gunicorn.config.py
 fi
